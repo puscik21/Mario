@@ -107,6 +107,7 @@ public class Mario extends Sprite{
         return region;
     }
 
+    // zwraca stan Mario
     public State getState(){
         if (b2body.getLinearVelocity().y > 0 || b2body.getLinearVelocity().y < 0 && previousState == State.JUMPING)
             return State.JUMPING;
