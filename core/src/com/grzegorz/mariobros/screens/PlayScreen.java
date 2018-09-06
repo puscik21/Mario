@@ -30,12 +30,13 @@ import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
 import com.grzegorz.mariobros.sprites.Mario;
 import com.grzegorz.mariobros.tools.B2WorldCreator;
+import com.grzegorz.mariobros.tools.WorldContactListener;
 
 public class PlayScreen implements Screen {
     // Final variables
     public static final float MARIO_VELOCITY_Y = 4f;
     public static final float MARIO_VELOCITY_X = 0.1f;
-    public static final int MARIO_MAX_VELOCITY_X = 2;
+    public static final float MARIO_MAX_VELOCITY_X = 1.5f;
 
 
     // general variables
@@ -83,6 +84,8 @@ public class PlayScreen implements Screen {
 
         // konstruktor ktory przypisuje swiatu (world) bloczki z mapy
         new B2WorldCreator(world, map);
+
+        world.setContactListener(new WorldContactListener());
     }
 
     public TextureAtlas getAtlas() {
@@ -112,6 +115,7 @@ public class PlayScreen implements Screen {
         world.step(1/60f, 6, 2);
 
         player.update(dt);
+        hud.update(dt);
 
         gameCam.position.x = player.b2body.getPosition().x + gamePort.getWorldWidth() / 4;
 
