@@ -3,6 +3,9 @@ package com.grzegorz.mariobros;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,11 +22,19 @@ public class MarioBros extends Game {
     public static final short DESTROYED_BIT = 16;
 
 	public SpriteBatch batch;
-	
+
+	/* WARNING uzywanie AssetManagera statycznie moze powodowac problemy, zwlaszcza na
+	 androidzie */
+	public static AssetManager manager;
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		setScreen(new PlayScreen(this));
+//		manager.load("Mario_GFX/music/ds3_soundtrack.mp3", Music.class);
+//		manager.load("Mario_GFX/sounds/coin.wav", Sound.class);
+		manager.load("Mario_GFX/sounds/breakblock.wav", Sound.class);
+	//	manager.load("Mario_GFX/sounds/bump.wav", Sound.class);
+	//	manager.finishLoading();
 	}
 
 	@Override

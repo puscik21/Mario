@@ -1,6 +1,7 @@
 package com.grzegorz.mariobros.sprites;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
@@ -27,7 +28,12 @@ public class Coin extends InteractiveTileObject{
     @Override
     public void onHeadHit() {
         Gdx.app.log("Coin", "Collision");
-        getCell().setTile(tileSet.getTile(BLANK_COIN));
-        Hud.addScore(500);
+        if (getCell().getTile().getId() == BLANK_COIN)  // jesli byl juz zbity to nabij guza ._.
+            MarioBros.manager.get("Mario_GFX/sounds/bump.wav", Sound.class).play();
+        else {
+            getCell().setTile(tileSet.getTile(BLANK_COIN));
+            Hud.addScore(500);
+            MarioBros.manager.get("Mario_GFX/sounds/coin.wav", Sound.class).play();
+        }
     }
 }
