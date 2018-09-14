@@ -105,5 +105,6 @@ public class Goomba extends Enemy{
         Dlatego trzeba to zrobic w metodzie update() */
     public void hitOnHead(){
         setToDestroy = true;
+        // TODO stopm sound
     }
 }

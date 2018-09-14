@@ -49,7 +49,10 @@ public class WorldContactListener implements ContactListener{
                 break;
             // Smierc Mario
             case MarioBros.MARIO_BIT | MarioBros.ENEMY_BIT:
-                Gdx.app.log("YOU", "DIED");
+                if(fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
+                    ((Mario) fixA.getUserData()).hit();
+                else
+                    ((Mario) fixB.getUserData()).hit();
                 break;
             // Mobek + mobkiem
             case MarioBros.ENEMY_BIT:
