@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -29,9 +30,20 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
+import com.grzegorz.mariobros.sprites.Enemy;
+import com.grzegorz.mariobros.sprites.Goomba;
 import com.grzegorz.mariobros.sprites.Mario;
+import com.grzegorz.mariobros.sprites.items.Item;
+import com.grzegorz.mariobros.sprites.items.ItemDef;
+import com.grzegorz.mariobros.sprites.items.Mushroom;
 import com.grzegorz.mariobros.tools.B2WorldCreator;
 import com.grzegorz.mariobros.tools.WorldContactListener;
+
+import java.util.Random;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 public class PlayScreen implements Screen {
     // Final variables
@@ -55,15 +67,18 @@ public class PlayScreen implements Screen {
     // Box2d variables
     private World world;
     private Box2DDebugRenderer b2dr;    // graficzna reprezentacja rzeczy w swiecie?
+    private B2WorldCreator creator;
 
-    // Mario
+    // Sprites
     private Mario player;
 
     private Music music;
 
+    private Array<Item> items;
+    private LinkedBlockingQueue<ItemDef> itemsToSpawn;
 
     public PlayScreen(MarioBros game){
-        atlas = new TextureAtlas("Mario_and_Enemies.pack");
+        atlas = new TextureAtlas("Mario_and_Enemies2.pack");
 
         this.game = game;
         gameCam = new OrthographicCamera();
@@ -83,20 +98,41 @@ public class PlayScreen implements Screen {
         b2dr = new Box2DDebugRenderer();
 
         // tworzy Mario w swiecie gry
-        player = new Mario(world, this);
+        player = new Mario(this);
 
         // konstruktor ktory przypisuje swiatu (world) bloczki z mapy
-        new B2WorldCreator(world, map);
+        creator = new B2WorldCreator(this);
 
         world.setContactListener(new WorldContactListener());
 
-        //music = MarioBros.manager.get("Mario_GFX/music/ds3_soundtrack.mp3", Music.class);
-//        music.setLooping(true);
-       // music.play();
+//        music = MarioBros.manager.get("Mario_GFX/music/ds3_soundtrack.mp3", Music.class);
+        music = Gdx.audio.newMusic(Gdx.files.internal("music/ds3_soundtrack.mp3"));
+        music.setLooping(true);
+        music.setVolume(1);
+        music.play();
+
+        items = new Array<Item>();
+        itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
+    }
+
+    public void spawnItem(ItemDef iDef){
+           itemsToSpawn.add(iDef);
+    }
+
+    public void handleSpawningItems(){
+        if (!itemsToSpawn.isEmpty()){
+            ItemDef idef = itemsToSpawn.poll();
+            if(idef.type == Mushroom.class)
+                items.add(new Mushroom(this, idef.position.x, idef.position.y));
+        }
     }
 
     public TextureAtlas getAtlas() {
         return atlas;
+    }
+
+    public Mario getPlayer() {
+        return player;
     }
 
     @Override
@@ -117,11 +153,26 @@ public class PlayScreen implements Screen {
     }
 
     public void update(float dt){
+        // sprawdza wciskane klawisze
         handleInput(dt);
+        // sprawdza czy sa jakies przedmioty do stworzenia
+        handleSpawningItems();
 
         world.step(1/60f, 6, 2);
 
         player.update(dt);
+
+        for (Enemy enemy : creator.getGoombas()) {
+            // metoda update - jesli jest to goomba to uzyta bedzie ta z goomba,
+            // jest turtle to z turtle
+            enemy.update(dt);
+            if (enemy.getX() < player.getX() + 3.5f)
+                enemy.b2body.setActive(true);
+        }
+
+        for (Item item : items)
+            item.update(dt);
+
         hud.update(dt);
 
         gameCam.position.x = player.b2body.getPosition().x + gamePort.getWorldWidth() / 4;
@@ -145,16 +196,30 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.draw(game.batch);
+        for (Enemy enemy : creator.getGoombas())
+            enemy.draw(game.batch);
+        for (Item item : items)
+            item.draw(game.batch);
         game.batch.end();
 
-        //ustawienia aby do batcha zaladowac tylko to co widzi kamera
+        // ustawienia aby do batcha zaladowac tylko to co widzi kamera
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
     }
 
     @Override
     public void resize(int width, int height) {
         gamePort.update(width, height);
+    }
+
+
+    public TiledMap getMap() {
+        return map;
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     @Override

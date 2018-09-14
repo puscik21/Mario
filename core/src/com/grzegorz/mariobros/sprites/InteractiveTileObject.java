@@ -1,6 +1,8 @@
 package com.grzegorz.mariobros.sprites;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -13,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.grzegorz.mariobros.MarioBros;
+import com.grzegorz.mariobros.screens.PlayScreen;
 
 public abstract class InteractiveTileObject {
     protected World world;
@@ -20,14 +23,18 @@ public abstract class InteractiveTileObject {
     protected TiledMapTile tile;
     protected Rectangle bounds;
     protected Body body;
+    protected PlayScreen screen;
+    protected MapObject object;
 
     protected Fixture fixture;
 
 
-    public InteractiveTileObject(World world, TiledMap map, Rectangle bounds){
-        this.world = world;
-        this.map = map;
-        this.bounds = bounds;
+    public InteractiveTileObject(PlayScreen screen, MapObject object){
+        this.screen = screen;
+        this.world = screen.getWorld();
+        this.map = screen.getMap();
+        this.object = object;
+        this.bounds = ((RectangleMapObject) object).getRectangle();
 
         BodyDef bDef = new BodyDef();
         FixtureDef fDef = new FixtureDef();
@@ -43,7 +50,7 @@ public abstract class InteractiveTileObject {
         fixture = body.createFixture(fDef);
     }
 
-    public abstract void onHeadHit();
+    public abstract void onHeadHit(Mario mario);
 
     public void setCategoryFilter(short filterBit){
         Filter filter = new Filter();

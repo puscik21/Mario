@@ -1,28 +1,36 @@
 package com.grzegorz.mariobros.sprites;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
+import com.grzegorz.mariobros.screens.PlayScreen;
 
 public class Brick extends InteractiveTileObject{
 
-    public Brick(World world, TiledMap map, Rectangle bounds){
-        super(world, map, bounds);
+    public Brick(PlayScreen screen, MapObject object){
+        super(screen, object);
         fixture.setUserData(this);
         setCategoryFilter(MarioBros.BRICK_BIT);
     }
 
 
     @Override
-    public void onHeadHit() {
-        Gdx.app.log("Brick", "Collision");
-        setCategoryFilter(MarioBros.DESTROYED_BIT);
-        getCell().setTile(null);
-        Hud.addScore(200);
-        MarioBros.manager.get("Mario_GFX/sounds/breakblock.wav", Sound.class).play();
+    public void onHeadHit(Mario mario) {
+        if (mario.isMarioBig()) {
+            setCategoryFilter(MarioBros.DESTROYED_BIT);
+            getCell().setTile(null);
+            Hud.addScore(200);
+            Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/breakblock.wav"));
+            //MarioBros.manager.get("sounds/breakblock.wav", Sound.class).play();
+        } else {
+            Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bump.wav"));
+        }
+
     }
 }
