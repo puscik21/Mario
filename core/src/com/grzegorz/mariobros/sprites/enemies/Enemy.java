@@ -1,11 +1,13 @@
-package com.grzegorz.mariobros.sprites;
+package com.grzegorz.mariobros.sprites.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.grzegorz.mariobros.screens.PlayScreen;
+import com.grzegorz.mariobros.sprites.Mario;
 
+// TODO Change hitOnHead() so Mario falling fast can't be killed by goomba
 public abstract class Enemy extends Sprite {
 
     protected World world;
@@ -26,7 +28,7 @@ public abstract class Enemy extends Sprite {
 
     public abstract void update(float dt);
 
-    public abstract void hitOnHead();
+    public abstract void hitOnHead(Mario mario);
 
 
     public void reverseVelocity(boolean x, boolean y) {

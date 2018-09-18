@@ -1,4 +1,4 @@
-package com.grzegorz.mariobros.sprites;
+package com.grzegorz.mariobros.sprites.TileObjects;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.maps.MapObject;
@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.screens.PlayScreen;
+import com.grzegorz.mariobros.sprites.Mario;
 
 public abstract class InteractiveTileObject {
     protected World world;

@@ -1,4 +1,4 @@
-package com.grzegorz.mariobros.sprites;
+package com.grzegorz.mariobros.sprites.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,8 +11,10 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.screens.PlayScreen;
+import com.grzegorz.mariobros.sprites.Mario;
+import com.grzegorz.mariobros.sprites.enemies.Enemy;
 
-public class Goomba extends Enemy{
+public class Goomba extends Enemy {
 
     private float stateTime;
     private Animation walkAnimation;
@@ -103,7 +105,7 @@ public class Goomba extends Enemy{
         nie moge tak po prostu usunac obiektu, bo co jesli np. koliduje w tym momencie
         z dwoma obiektami?
         Dlatego trzeba to zrobic w metodzie update() */
-    public void hitOnHead(){
+    public void hitOnHead(Mario mario){
         setToDestroy = true;
         // TODO stopm sound
     }

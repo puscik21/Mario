@@ -6,32 +6,19 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
-import com.grzegorz.mariobros.sprites.Enemy;
-import com.grzegorz.mariobros.sprites.Goomba;
+import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.Mario;
 import com.grzegorz.mariobros.sprites.items.Item;
 import com.grzegorz.mariobros.sprites.items.ItemDef;
@@ -39,11 +26,7 @@ import com.grzegorz.mariobros.sprites.items.Mushroom;
 import com.grzegorz.mariobros.tools.B2WorldCreator;
 import com.grzegorz.mariobros.tools.WorldContactListener;
 
-import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 public class PlayScreen implements Screen {
     // Final variables
@@ -141,14 +124,16 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput(float dt){
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)){
-            player.b2body.applyLinearImpulse(new Vector2(0, MARIO_VELOCITY_Y), player.b2body.getWorldCenter(), true);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= MARIO_MAX_VELOCITY_X){
-            player.b2body.applyLinearImpulse(new Vector2(MARIO_VELOCITY_X, 0), player.b2body.getWorldCenter(), true);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -MARIO_MAX_VELOCITY_X){
-            player.b2body.applyLinearImpulse(new Vector2(-MARIO_VELOCITY_X, 0), player.b2body.getWorldCenter(), true);
+        if (player.currentState != Mario.State.DEAD && player.currentState !=Mario.State.GROWING) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                player.b2body.applyLinearImpulse(new Vector2(0, MARIO_VELOCITY_Y), player.b2body.getWorldCenter(), true);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= MARIO_MAX_VELOCITY_X) {
+                player.b2body.applyLinearImpulse(new Vector2(MARIO_VELOCITY_X, 0), player.b2body.getWorldCenter(), true);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -MARIO_MAX_VELOCITY_X) {
+                player.b2body.applyLinearImpulse(new Vector2(-MARIO_VELOCITY_X, 0), player.b2body.getWorldCenter(), true);
+            }
         }
     }
 
@@ -162,7 +147,7 @@ public class PlayScreen implements Screen {
 
         player.update(dt);
 
-        for (Enemy enemy : creator.getGoombas()) {
+        for (Enemy enemy : creator.getEnemnies()) {
             // metoda update - jesli jest to goomba to uzyta bedzie ta z goomba,
             // jest turtle to z turtle
             enemy.update(dt);
@@ -175,7 +160,8 @@ public class PlayScreen implements Screen {
 
         hud.update(dt);
 
-        gameCam.position.x = player.b2body.getPosition().x + gamePort.getWorldWidth() / 4;
+        if (player.currentState != Mario.State.DEAD)
+            gameCam.position.x = player.b2body.getPosition().x + gamePort.getWorldWidth() / 4;
 
         gameCam.update();
         renderer.setView(gameCam);
@@ -196,7 +182,7 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.draw(game.batch);
-        for (Enemy enemy : creator.getGoombas())
+        for (Enemy enemy : creator.getEnemnies())
             enemy.draw(game.batch);
         for (Item item : items)
             item.draw(game.batch);
@@ -206,6 +192,14 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
+        if (gameOver()){
+            game.setScreen(new GameOverScreen(game));
+            dispose();
+        }
+    }
+
+    public boolean gameOver(){
+        return player.currentState == Mario.State.DEAD && player.getStateTimer() > 3;
     }
 
     @Override

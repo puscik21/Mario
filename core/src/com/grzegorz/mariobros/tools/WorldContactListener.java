@@ -1,14 +1,13 @@
 package com.grzegorz.mariobros.tools;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.grzegorz.mariobros.MarioBros;
-import com.grzegorz.mariobros.sprites.Enemy;
-import com.grzegorz.mariobros.sprites.InteractiveTileObject;
+import com.grzegorz.mariobros.sprites.enemies.Enemy;
+import com.grzegorz.mariobros.sprites.TileObjects.InteractiveTileObject;
 import com.grzegorz.mariobros.sprites.Mario;
 import com.grzegorz.mariobros.sprites.items.Item;
 
@@ -36,9 +35,9 @@ public class WorldContactListener implements ContactListener{
             // Wskoczenie na mobka
             case MarioBros.ENEMY_HEAD_BIT | MarioBros.MARIO_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.ENEMY_HEAD_BIT)
-                    ((Enemy) fixA.getUserData()).hitOnHead();
+                    ((Enemy) fixA.getUserData()).hitOnHead((Mario) fixB.getUserData());
                 else
-                    ((Enemy) fixB.getUserData()).hitOnHead();
+                    ((Enemy) fixB.getUserData()).hitOnHead((Mario) fixA.getUserData());
                 break;
             // Mobek + obiekt (rura)
             case MarioBros.ENEMY_BIT | MarioBros.OBJECT_BIT:
@@ -50,9 +49,9 @@ public class WorldContactListener implements ContactListener{
             // Smierc Mario
             case MarioBros.MARIO_BIT | MarioBros.ENEMY_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
-                    ((Mario) fixA.getUserData()).hit();
+                    ((Mario) fixA.getUserData()).hit((Enemy)fixB.getUserData());
                 else
-                    ((Mario) fixB.getUserData()).hit();
+                    ((Mario) fixB.getUserData()).hit((Enemy)fixA.getUserData());
                 break;
             // Mobek + mobkiem
             case MarioBros.ENEMY_BIT:
