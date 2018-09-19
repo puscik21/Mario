@@ -14,6 +14,7 @@ public abstract class Enemy extends Sprite {
     protected PlayScreen screen;
     public Body b2body;
     public Vector2 velocity;
+    protected boolean dangerous;
 
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -22,6 +23,7 @@ public abstract class Enemy extends Sprite {
         defineEnemy();
         velocity = new Vector2(-0.7f, -1.2f);
         b2body.setActive(false);
+        dangerous = true;
     }
 
     protected abstract void defineEnemy();
@@ -30,6 +32,11 @@ public abstract class Enemy extends Sprite {
 
     public abstract void hitOnHead(Mario mario);
 
+    public abstract void onEnemyHit(Enemy enemy);
+
+    public boolean isDangerous() {
+        return dangerous;
+    }
 
     public void reverseVelocity(boolean x, boolean y) {
         if (x)

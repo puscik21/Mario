@@ -1,10 +1,13 @@
 package com.grzegorz.mariobros.sprites.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
@@ -15,13 +18,14 @@ import com.grzegorz.mariobros.sprites.Mario;
 public class Turtle extends Enemy {
     public static final int KICK_LEFT_SPEED = -2;
     public static final int KICK_RIGHT_SPEED = 2;
-    public enum State {WALKING, STANDING_SHELL, MOVING_SHELL}
+    public enum State {WALKING, STANDING_SHELL, MOVING_SHELL, DEAD}
     public State currentState;
     public State previousState;
     private float stateTime;
     private Animation<TextureRegion> walkAnimation;
     private Array<TextureRegion> frames;
     private TextureRegion shell;
+    private float deadRotationDegrees;
     private boolean setToDestroy;
     private boolean destroyed;
 
@@ -36,6 +40,7 @@ public class Turtle extends Enemy {
         currentState = previousState = State.WALKING;
 
         setBounds(getX(), getY(), 16 / MarioBros.PPM, 24 / MarioBros.PPM);
+        deadRotationDegrees = 0;
     }
 
     @Override
@@ -69,11 +74,25 @@ public class Turtle extends Enemy {
         head.set(vertice);      // tutaj przypisujemy wielokat do head
 
         fdef.shape = head;
-        fdef.restitution = 1.5f;    // bounciness
+        fdef.restitution = 1f;    // bounciness
         fdef.filter.categoryBits = MarioBros.ENEMY_HEAD_BIT;
         /* po to przypisuje klase Goomba, poniewaz pozniej moge np odniesc sie do tego
         przez getUserData() i wykastowac na ogolna klase Enemy i wziac z niej jakas metode np */
         b2body.createFixture(fdef).setUserData(this);
+    }
+
+    public void onEnemyHit(Enemy enemy){
+        if (enemy instanceof Turtle){
+            if (((Turtle) enemy).currentState == State.MOVING_SHELL && currentState != State.MOVING_SHELL)
+                killed();
+            else if (((Turtle) enemy).currentState == State.STANDING_SHELL && currentState == State.WALKING)
+                ((Turtle) enemy).kick(getX() <= ((Turtle) enemy).getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
+            else if (((Turtle) enemy).currentState == State.WALKING && currentState == State.WALKING)
+                reverseVelocity(true, false);
+        }
+        else if(currentState != State.MOVING_SHELL){
+            reverseVelocity(true, false);
+        }
     }
 
     public TextureRegion getFrame(float dt){
@@ -111,10 +130,22 @@ public class Turtle extends Enemy {
         if (currentState == State.STANDING_SHELL && stateTime > 5){
             currentState = State.WALKING;
             velocity.x = 1;
+            dangerous = true;
         }
 
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - 8 / MarioBros.PPM);
-        b2body.setLinearVelocity(velocity);
+
+        if (currentState == State.DEAD){
+            deadRotationDegrees += 1;
+            rotate(deadRotationDegrees);
+            if (stateTime > 5 && !destroyed){
+                world.destroyBody(b2body);
+                screen.getCreator().removeEnemy(this);
+                destroyed = true;
+            }
+        }
+        else
+            b2body.setLinearVelocity(velocity);
     }
 
     @Override
@@ -122,18 +153,39 @@ public class Turtle extends Enemy {
         if (currentState != State.STANDING_SHELL){
             currentState = State.STANDING_SHELL;
             velocity.x = 0;
+            dangerous = false;
         }
         else{
             kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
         }
     }
 
+    // TODO gdy jest zniszczony to sie nie rysuje, ale lepiej jest zrobic tak zeby usunac go z listy
+    // przeciwnikow? odc 31 12min
+    // raczej mozna spokojnie usunac, bo mam juz metode removeEnemy w klasie B2WorldCreator
+//    public void draw (Batch batch){
+//        if(!destroyed)
+//            super.draw(batch);
+//    }
+
     public void kick (int speed){
         velocity.x = speed;
         currentState = State.MOVING_SHELL;
+        dangerous = true;
     }
 
     public State getCurrentState(){
         return currentState;
+    }
+
+    public void killed(){
+        currentState = State.DEAD;
+        Filter filter = new Filter();
+        filter.maskBits = MarioBros.NOTHING_BIT;
+
+        for (Fixture fixture : b2body.getFixtureList())
+            fixture.setFilterData(filter);
+        // getWorldCenter oznacza ze sila bedzie przylozona w srodku obiektu
+        b2body.applyLinearImpulse(new Vector2(0, 5f), b2body.getWorldCenter(), true);
     }
 }

@@ -193,11 +193,10 @@ public class Mario extends Sprite{
         return stateTimer;
     }
 
-    public void hit(Enemy enemy){
-        if (enemy instanceof Turtle && ((Turtle) enemy).getCurrentState() == Turtle.State.STANDING_SHELL){
+    public void hit(Enemy enemy) {
+        if (enemy instanceof Turtle && ((Turtle) enemy).getCurrentState() == Turtle.State.STANDING_SHELL) {
             ((Turtle) enemy).kick(this.getX() <= enemy.getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
-        }
-        else {
+        } else if (enemy.isDangerous()){
             if (marioIsBig) {
                 marioIsBig = false;
                 timeToRedefineMario = true;

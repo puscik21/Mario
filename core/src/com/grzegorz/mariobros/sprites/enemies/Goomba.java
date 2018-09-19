@@ -93,9 +93,17 @@ public class Goomba extends Enemy {
 
     @Override
     public void draw(Batch batch){
-        if (!destroyed || stateTime < 1){
+        if (!destroyed || stateTime < 1)
             super.draw(batch);
-        }
+        else if (stateTime > 1)
+            screen.getCreator().removeEnemy(this);
+    }
+
+    public void onEnemyHit(Enemy enemy){
+        if (enemy instanceof Turtle && ((Turtle) enemy).currentState == Turtle.State.MOVING_SHELL)
+            setToDestroy = true;
+        else
+            reverseVelocity(true, false);
     }
 
 
@@ -107,6 +115,7 @@ public class Goomba extends Enemy {
         Dlatego trzeba to zrobic w metodzie update() */
     public void hitOnHead(Mario mario){
         setToDestroy = true;
-        // TODO stopm sound
+        dangerous = false;
+        // TODO stomp sound
     }
 }

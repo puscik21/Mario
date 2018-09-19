@@ -21,6 +21,7 @@ import com.grzegorz.mariobros.sprites.enemies.Turtle;
 public class B2WorldCreator {
     private Array<Goomba> goombas;
     private Array<Turtle> turtles;
+    private Array<Enemy> enemies = new Array<Enemy>();
 
     public B2WorldCreator(PlayScreen screen){
 
@@ -62,13 +63,11 @@ public class B2WorldCreator {
 
         // create coins bodies / fixtures
         for (MapObject object : map.getLayers().get(5).getObjects().getByType(RectangleMapObject.class)){
-
             new Coin(screen, object);
         }
 
         // create bricks bodies / fixtures
         for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
-
             new Brick(screen, object);
         }
 
@@ -87,16 +86,16 @@ public class B2WorldCreator {
 
             turtles.add(new Turtle(screen, rectangle.getX() / MarioBros.PPM, rectangle.getY() / MarioBros.PPM));
         }
-    }
 
-    public Array<Goomba> getGoombas() {
-        return goombas;
-    }
-
-    public Array<Enemy> getEnemnies() {
-        Array<Enemy> enemies = new Array<Enemy>();
         enemies.addAll(goombas);
         enemies.addAll(turtles);
+    }
+
+   public void removeEnemy(Enemy enemy){
+        enemies.removeValue(enemy, true);
+   }
+
+    public Array<Enemy> getEnemnies() {
         return enemies;
     }
 }

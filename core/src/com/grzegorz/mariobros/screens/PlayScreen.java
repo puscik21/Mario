@@ -107,6 +107,7 @@ public class PlayScreen implements Screen {
             ItemDef idef = itemsToSpawn.poll();
             if(idef.type == Mushroom.class)
                 items.add(new Mushroom(this, idef.position.x, idef.position.y));
+            // TODO tutaj bedzie if z monetami
         }
     }
 
@@ -116,6 +117,10 @@ public class PlayScreen implements Screen {
 
     public Mario getPlayer() {
         return player;
+    }
+
+    public B2WorldCreator getCreator() {
+        return creator;
     }
 
     @Override
@@ -147,12 +152,28 @@ public class PlayScreen implements Screen {
 
         player.update(dt);
 
+        // jezeli wypadnaie poza mape to usun z listy przeciwnikow
+        for (Enemy enemy : creator.getEnemnies()){
+            if (enemy.getY() < -1) {
+                creator.removeEnemy(enemy);
+                world.destroyBody(enemy.b2body);
+            }
+        }
+
         for (Enemy enemy : creator.getEnemnies()) {
             // metoda update - jesli jest to goomba to uzyta bedzie ta z goomba,
             // jest turtle to z turtle
             enemy.update(dt);
             if (enemy.getX() < player.getX() + 3.5f)
                 enemy.b2body.setActive(true);
+        }
+
+        // jezeli wypadna poza mape to usun z listy przedmiotow
+        for (Item item : items){
+            if (item.getY() < -1 || (!item.isDestroyed() && item.isToDestroy())) {
+                items.removeValue(item, true);
+                world.destroyBody(item.getBody());
+            }
         }
 
         for (Item item : items)

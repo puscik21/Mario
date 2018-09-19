@@ -9,14 +9,16 @@ import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
 
 public class Mushroom extends Item {
-
     PlayScreen screen;
+
     public Mushroom(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         this.screen = screen;
         setRegion(screen.getAtlas().findRegion("mushroom"), 0, 0, 16, 16);
         velocity = new Vector2(0.7f, 0);
     }
+
+
 
     @Override
     public void defineItem() {

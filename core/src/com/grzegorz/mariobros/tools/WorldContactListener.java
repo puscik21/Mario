@@ -49,16 +49,16 @@ public class WorldContactListener implements ContactListener{
             // Smierc Mario
             case MarioBros.MARIO_BIT | MarioBros.ENEMY_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
-                    ((Mario) fixA.getUserData()).hit((Enemy)fixB.getUserData());
+                        ((Mario) fixA.getUserData()).hit((Enemy) fixB.getUserData());
                 else
-                    ((Mario) fixB.getUserData()).hit((Enemy)fixA.getUserData());
+                        ((Mario) fixB.getUserData()).hit((Enemy) fixA.getUserData());
                 break;
             // Mobek + mobkiem
             case MarioBros.ENEMY_BIT:
-                ((Enemy)fixA.getUserData()).reverseVelocity(true,false);
-                ((Enemy)fixB.getUserData()).reverseVelocity(true,false);
+                ((Enemy)fixA.getUserData()).onEnemyHit((Enemy) fixB.getUserData());
+                ((Enemy)fixB.getUserData()).onEnemyHit((Enemy) fixA.getUserData());
                 break;
-
+                // Mario lvl up
             case MarioBros.MARIO_BIT| MarioBros.ITEM_BIT:
                 boolean isBig;
                 if (fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
@@ -72,6 +72,7 @@ public class WorldContactListener implements ContactListener{
                         ((Item) fixB.getUserData()).use();
                 }
                 break;
+                // Mushroom run into object (pipe e.g)
             case MarioBros.OBJECT_BIT| MarioBros.ITEM_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.ITEM_BIT)
                     ((Item) fixA.getUserData()).reverseVelocity(true, false);
