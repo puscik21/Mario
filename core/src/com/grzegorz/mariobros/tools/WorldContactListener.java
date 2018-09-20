@@ -1,11 +1,13 @@
 package com.grzegorz.mariobros.tools;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.grzegorz.mariobros.MarioBros;
+import com.grzegorz.mariobros.sprites.TileObjects.Flag;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.TileObjects.InteractiveTileObject;
 import com.grzegorz.mariobros.sprites.Mario;
@@ -59,7 +61,7 @@ public class WorldContactListener implements ContactListener{
                 ((Enemy)fixB.getUserData()).onEnemyHit((Enemy) fixA.getUserData());
                 break;
                 // Mario lvl up
-            case MarioBros.MARIO_BIT| MarioBros.ITEM_BIT:
+            case MarioBros.MARIO_BIT | MarioBros.ITEM_BIT:
                 boolean isBig;
                 if (fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
                     isBig = ((Mario) fixA.getUserData()).isMarioBig();
@@ -73,12 +75,19 @@ public class WorldContactListener implements ContactListener{
                 }
                 break;
                 // Mushroom run into object (pipe e.g)
-            case MarioBros.OBJECT_BIT| MarioBros.ITEM_BIT:
+            case MarioBros.OBJECT_BIT | MarioBros.ITEM_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.ITEM_BIT)
                     ((Item) fixA.getUserData()).reverseVelocity(true, false);
                 else
                     ((Item) fixB.getUserData()).reverseVelocity(true, false);
                 break;
+                // TODO flaga wygranko
+            case MarioBros.MARIO_BIT | MarioBros.FLAG_BIT:
+                Gdx.app.log("Mario", "WINNER");
+                if (fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
+                    ((Mario) fixA.getUserData()).captureTheFlag();
+                else
+                    ((Mario) fixB.getUserData()).captureTheFlag();
         }
     }
 

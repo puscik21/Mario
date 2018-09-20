@@ -13,6 +13,7 @@ import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.TileObjects.Brick;
 import com.grzegorz.mariobros.sprites.TileObjects.Coin;
+import com.grzegorz.mariobros.sprites.TileObjects.Flag;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.enemies.Goomba;
 import com.badlogic.gdx.utils.Array;
@@ -85,6 +86,13 @@ public class B2WorldCreator {
             Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
 
             turtles.add(new Turtle(screen, rectangle.getX() / MarioBros.PPM, rectangle.getY() / MarioBros.PPM));
+        }
+
+        // TODO flaga
+        for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class)){
+            Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
+
+            new Flag(screen, object);
         }
 
         enemies.addAll(goombas);

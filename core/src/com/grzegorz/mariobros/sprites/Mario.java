@@ -1,5 +1,6 @@
 package com.grzegorz.mariobros.sprites;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -26,7 +27,7 @@ public class Mario extends Sprite{
     public Body b2body;
 
     // Animation variables
-    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD};
+    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD, SLIDING};
     public State currentState;
     public State previousState;
     private TextureRegion marioStand;
@@ -46,6 +47,8 @@ public class Mario extends Sprite{
     private boolean timeToDefineBigMario;
     private boolean timeToRedefineMario;
     private boolean marioIsDead;
+    private boolean marioIsSliding;
+    boolean wasMoved;
 
     // TODO dorzucic ghost vertices zeby Mario nie podskakiwal na cegielkach
     public Mario(PlayScreen screen){
@@ -111,6 +114,16 @@ public class Mario extends Sprite{
             defineBigMario();
         if (timeToRedefineMario)
             reDefineMario();
+
+        if (currentState == State.SLIDING){
+            if (getY() < 0.32f && !wasMoved) {
+                b2body.setTransform(b2body.getPosition().x + 0.15f, b2body.getPosition().y, b2body.getAngle()); // obrot wokol flagi
+                b2body.setLinearVelocity(0, 0);
+                wasMoved = true;
+                b2body.setGravityScale(1);
+                marioIsSliding = false;
+            }
+        }
     }
 
     public TextureRegion getFrame(float dt){
@@ -163,6 +176,8 @@ public class Mario extends Sprite{
             return State.GROWING;
         else if (marioIsDead)
             return State.DEAD;
+        else if (marioIsSliding)
+            return State.SLIDING;
         else if (b2body.getLinearVelocity().y > 0 || b2body.getLinearVelocity().y < 0 && previousState == State.JUMPING)
             return State.JUMPING;
         else if (b2body.getLinearVelocity().y < 0)
@@ -214,6 +229,13 @@ public class Mario extends Sprite{
         }
     }
 
+    public void captureTheFlag(){
+        Gdx.app.log("Mario", "WINNER");
+        marioIsSliding = true;
+        b2body.setGravityScale(0);
+        b2body.setLinearVelocity(new Vector2(0, -1f));
+    }
+
     public void reDefineMario(){
         Vector2 position = b2body.getPosition();
         world.destroyBody(b2body);
@@ -233,7 +255,8 @@ public class Mario extends Sprite{
                 MarioBros.OBJECT_BIT |
                 MarioBros.ENEMY_BIT |
                 MarioBros.ENEMY_HEAD_BIT |
-                MarioBros.ITEM_BIT;
+                MarioBros.ITEM_BIT |
+                MarioBros.FLAG_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
@@ -270,7 +293,8 @@ public class Mario extends Sprite{
                 MarioBros.OBJECT_BIT |
                 MarioBros.ENEMY_BIT |
                 MarioBros.ENEMY_HEAD_BIT |
-                MarioBros.ITEM_BIT;
+                MarioBros.ITEM_BIT |
+                MarioBros.FLAG_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
@@ -304,7 +328,8 @@ public class Mario extends Sprite{
                 MarioBros.OBJECT_BIT |
                 MarioBros.ENEMY_BIT |
                 MarioBros.ENEMY_HEAD_BIT |
-                MarioBros.ITEM_BIT;
+                MarioBros.ITEM_BIT |
+                MarioBros.FLAG_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);

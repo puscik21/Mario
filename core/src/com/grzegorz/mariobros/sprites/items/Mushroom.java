@@ -14,7 +14,7 @@ public class Mushroom extends Item {
     public Mushroom(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         this.screen = screen;
-        setRegion(screen.getAtlas().findRegion("mushroom"), 0, 0, 16, 16);
+        setRegion(screen.getAtlas().findRegion("mushroom"), 0, 0, 18, 18);
         velocity = new Vector2(0.7f, 0);
     }
 

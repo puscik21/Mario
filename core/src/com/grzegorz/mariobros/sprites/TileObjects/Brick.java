@@ -28,6 +28,5 @@ public class Brick extends InteractiveTileObject {
         } else {
             Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bump.wav"));
         }
-
     }
 }

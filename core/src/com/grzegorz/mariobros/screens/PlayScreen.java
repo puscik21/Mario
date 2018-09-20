@@ -129,7 +129,7 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput(float dt){
-        if (player.currentState != Mario.State.DEAD && player.currentState !=Mario.State.GROWING) {
+        if (player.currentState != Mario.State.DEAD && player.currentState !=Mario.State.GROWING && player.currentState != Mario.State.SLIDING) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 player.b2body.applyLinearImpulse(new Vector2(0, MARIO_VELOCITY_Y), player.b2body.getWorldCenter(), true);
             }
@@ -181,7 +181,7 @@ public class PlayScreen implements Screen {
 
         hud.update(dt);
 
-        if (player.currentState != Mario.State.DEAD)
+        if (player.currentState != Mario.State.DEAD && player.currentState != Mario.State.SLIDING)
             gameCam.position.x = player.b2body.getPosition().x + gamePort.getWorldWidth() / 4;
 
         gameCam.update();
