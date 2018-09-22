@@ -14,27 +14,31 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.grzegorz.mariobros.MarioBros;
 
-public class GameOverScreen implements Screen {
+public class GameWonScreen implements Screen{
 
-    private Viewport viewport;
     private Stage stage;
+    private Viewport viewport;
     private Game game;
 
-    public GameOverScreen(Game game){
+    public GameWonScreen(Game game){
         this.game = game;
         this.viewport = new FitViewport(MarioBros.V_WIDTH, MarioBros.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, ((MarioBros) game).batch);
 
         Label.LabelStyle font = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+        Label.LabelStyle font_yellow = new Label.LabelStyle(new BitmapFont(), Color.YELLOW);
 
         Table table = new Table();
         table.center();
         table.setFillParent(true); // ze wypelni caly stage
 
-        Label gameOverLabel = new Label("GAME OVER", font);
-        Label playAgainLevel = new Label("Click to Play Again", font);
+        Label gameOverLabel = new Label("WYGRANKO", font);
+        Label maybeLaterLabel = new Label("Moze jeszcze kiedys zrobie drugi poziom ;)", font);
+        Label playAgainLevel = new Label("Click to Play Again", font_yellow);
 
         table.add(gameOverLabel).expandX();
+        table.row();
+        table.add(maybeLaterLabel).expandX().padTop(20f);
         table.row();
         table.add(playAgainLevel).expandX().padTop(20f);
 
@@ -80,6 +84,6 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
+
     }
 }

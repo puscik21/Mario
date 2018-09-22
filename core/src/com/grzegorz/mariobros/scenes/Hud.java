@@ -59,6 +59,10 @@ public class Hud implements Disposable{
         stage.addActor(table);
     }
 
+    public int getTime() {
+        return worldTimer;
+    }
+
     public void update(float dt){
         timeCount += dt;
         if (timeCount >= 1){
@@ -73,6 +77,10 @@ public class Hud implements Disposable{
         scoreLabel.setText(String.format("%06d", score));
     }
 
+    public void timeDecrease(){
+            worldTimer--;
+            countdownLabel.setText(String.format("%03d", worldTimer));
+    }
 
     @Override
     public void dispose() {

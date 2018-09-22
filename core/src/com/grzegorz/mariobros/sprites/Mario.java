@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -27,16 +28,18 @@ public class Mario extends Sprite{
     public Body b2body;
 
     // Animation variables
-    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD, SLIDING};
+    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD, SLIDING, ENDING};
     public State currentState;
     public State previousState;
     private TextureRegion marioStand;
     private Animation<TextureRegion> marioRun;
     private TextureRegion marioJump;
     private TextureRegion marioDead;
+    private TextureRegion marioSlide;
 
     private TextureRegion bigMarioStand;
     private TextureRegion bigMarioJump;
+    private TextureRegion bigMarioSlide;
     private Animation<TextureRegion> bigMarioRun;
     private Animation<TextureRegion> growMario;
 
@@ -48,7 +51,9 @@ public class Mario extends Sprite{
     private boolean timeToRedefineMario;
     private boolean marioIsDead;
     private boolean marioIsSliding;
-    boolean wasMoved;
+    private boolean marioIsEnding;
+
+    private int numbersOfUsage;         // TODO do metody slide, ale moze do usuniecia
 
     // TODO dorzucic ghost vertices zeby Mario nie podskakiwal na cegielkach
     public Mario(PlayScreen screen){
@@ -85,6 +90,9 @@ public class Mario extends Sprite{
         // smierc Mario
         marioDead = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 96, 0, 16, 16);
 
+        // sliding Mario
+        marioSlide = new TextureRegion(screen.getAtlas().findRegion("little_mario"), 128, 0, 16, 16);
+        bigMarioSlide = new TextureRegion(screen.getAtlas().findRegion("big_mario"), 128, 0, 16, 32);
 
         // Mario lvl up
         for (int i=0; i<3; i++) {
@@ -115,14 +123,32 @@ public class Mario extends Sprite{
         if (timeToRedefineMario)
             reDefineMario();
 
-        if (currentState == State.SLIDING){
-            if (getY() < 0.32f && !wasMoved) {
-                b2body.setTransform(b2body.getPosition().x + 0.15f, b2body.getPosition().y, b2body.getAngle()); // obrot wokol flagi
+        if (marioIsEnding && b2body.getLinearVelocity().x < 1.5f) {
+            b2body.applyLinearImpulse(new Vector2(0.1f, 0), b2body.getWorldCenter(), true);
+        }
+
+        if (currentState == State.SLIDING)
+            slide(dt);
+
+    }
+
+    private void slide(float dt){
+        if (getY() < 0.36f) {
+            // gdy juz zjedzie na dol, ma sie przesunac na druga strone flagi (robi to tylko raz)
+            if (numbersOfUsage == 0) {
+                b2body.setTransform(b2body.getPosition().x + 0.16f, b2body.getPosition().y, b2body.getAngle()); // obrot wokol flagi
                 b2body.setLinearVelocity(0, 0);
-                wasMoved = true;
+            }
+            TextureRegion region = getFrame(dt);
+            region.flip(true,false);
+            setRegion(region);
+            if (stateTimer > 1.5f) {
+                b2body.applyLinearImpulse(new Vector2(0.2f, 0), b2body.getWorldCenter(), true);
                 b2body.setGravityScale(1);
                 marioIsSliding = false;
+                marioIsEnding = true;
             }
+            numbersOfUsage += 1;
         }
     }
 
@@ -145,6 +171,9 @@ public class Mario extends Sprite{
             case RUNNING:
                 region = marioIsBig ? bigMarioRun.getKeyFrame(stateTimer, true) :
                         marioRun.getKeyFrame(stateTimer, true);
+                break;
+            case SLIDING:
+                region = marioIsBig ? bigMarioSlide : marioSlide;
                 break;
             case FALLING:
             case STANDING:

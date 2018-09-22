@@ -89,11 +89,9 @@ public class B2WorldCreator {
         }
 
         // TODO flaga
-        for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class)){
-            Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
-
+        for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class))
             new Flag(screen, object);
-        }
+
 
         enemies.addAll(goombas);
         enemies.addAll(turtles);

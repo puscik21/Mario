@@ -7,6 +7,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -26,7 +27,10 @@ import com.grzegorz.mariobros.sprites.items.Mushroom;
 import com.grzegorz.mariobros.tools.B2WorldCreator;
 import com.grzegorz.mariobros.tools.WorldContactListener;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class PlayScreen implements Screen {
     // Final variables
@@ -54,11 +58,12 @@ public class PlayScreen implements Screen {
 
     // Sprites
     private Mario player;
+    private Array<Item> items;
+    private LinkedBlockingQueue<ItemDef> itemsToSpawn;
 
     private Music music;
 
-    private Array<Item> items;
-    private LinkedBlockingQueue<ItemDef> itemsToSpawn;
+    private boolean theEnd;
 
     public PlayScreen(MarioBros game){
         atlas = new TextureAtlas("Mario_and_Enemies2.pack");
@@ -96,6 +101,7 @@ public class PlayScreen implements Screen {
 
         items = new Array<Item>();
         itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
+
     }
 
     public void spawnItem(ItemDef iDef){
@@ -150,7 +156,16 @@ public class PlayScreen implements Screen {
 
         world.step(1/60f, 6, 2);
 
-        player.update(dt);
+        // TODO the end of the game... it need to be improved in future
+        // when Mario came to the castle
+        if (player.getX() > 35.04) {
+            theEnd = true;
+            // TODO dlaczego to wyrzuca blad?
+            //world.destroyBody(player.b2body);
+        }
+
+        if (!theEnd)
+            player.update(dt);
 
         // jezeli wypadnaie poza mape to usun z listy przeciwnikow
         for (Enemy enemy : creator.getEnemnies()){
@@ -179,13 +194,19 @@ public class PlayScreen implements Screen {
         for (Item item : items)
             item.update(dt);
 
-        hud.update(dt);
+        if (theEnd) {
+            Hud.addScore(50);
+            hud.timeDecrease();
+        }
+        else
+            hud.update(dt);
 
-        if (player.currentState != Mario.State.DEAD && player.currentState != Mario.State.SLIDING)
+        if (player.currentState != Mario.State.DEAD && player.currentState != Mario.State.SLIDING && player.getX() < 34)
             gameCam.position.x = player.b2body.getPosition().x + gamePort.getWorldWidth() / 4;
 
         gameCam.update();
         renderer.setView(gameCam);
+
     }
 
     @Override
@@ -202,7 +223,8 @@ public class PlayScreen implements Screen {
 
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
-        player.draw(game.batch);
+        if (!theEnd)
+            player.draw(game.batch);
         for (Enemy enemy : creator.getEnemnies())
             enemy.draw(game.batch);
         for (Item item : items)
@@ -217,10 +239,26 @@ public class PlayScreen implements Screen {
             game.setScreen(new GameOverScreen(game));
             dispose();
         }
+        else if (gameWon()){
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e){
+//                Thread.currentThread().interrupt();
+//            }
+            game.setScreen(new GameWonScreen(game));
+            dispose();
+        }
     }
 
     public boolean gameOver(){
         return player.currentState == Mario.State.DEAD && player.getStateTimer() > 3;
+    }
+
+    // metoda sprawdzajaca czy mozna juz przelaczyc screen'a
+    // theEnd uzywane jest jeszcze po to by dac znac Hud'owi czy ma zmieniac czas na punkty
+    private boolean gameWon(){
+        //return theEnd && timerElapsedTime > 3;
+        return theEnd && hud.getTime() == 0;
     }
 
     @Override
