@@ -83,7 +83,6 @@ public class WorldContactListener implements ContactListener{
                 break;
                 // TODO flaga wygranko
             case MarioBros.MARIO_BIT | MarioBros.FLAG_BIT:
-                Gdx.app.log("Mario", "WINNER");
                 if (fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
                     ((Mario) fixA.getUserData()).captureTheFlag();
                 else

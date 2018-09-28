@@ -29,7 +29,7 @@ public class Hud implements Disposable{
     private Label marioLabel;
 
     public Hud(SpriteBatch sb){
-        worldTimer = 300;
+        worldTimer = 180;
         timeCount = 0;
         score = 0;
 
@@ -65,7 +65,7 @@ public class Hud implements Disposable{
 
     public void update(float dt){
         timeCount += dt;
-        if (timeCount >= 1){
+        if (timeCount >= 1 && worldTimer > 0){
             worldTimer--;
             countdownLabel.setText(String.format("%03d", worldTimer));
             timeCount = 0;

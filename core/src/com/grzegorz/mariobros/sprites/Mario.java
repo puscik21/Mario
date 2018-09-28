@@ -237,6 +237,10 @@ public class Mario extends Sprite{
         return stateTimer;
     }
 
+    public void setStateTimer(float stateTimer) {
+        this.stateTimer = stateTimer;
+    }
+
     public void hit(Enemy enemy) {
         if (enemy instanceof Turtle && ((Turtle) enemy).getCurrentState() == Turtle.State.STANDING_SHELL) {
             ((Turtle) enemy).kick(this.getX() <= enemy.getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
@@ -256,6 +260,24 @@ public class Mario extends Sprite{
                 // TODO mario_die sound
             }
         }
+    }
+
+    public void outOfMap(){
+        marioIsDead = true;
+        Filter filter = new Filter();
+        filter.maskBits = MarioBros.NOTHING_BIT;
+        for (Fixture fixture : b2body.getFixtureList())
+            fixture.setFilterData(filter);
+        // TODO game_over sound;
+    }
+
+    public void endOfTime(){
+        marioIsDead = true;
+        Filter filter = new Filter();
+        filter.maskBits = MarioBros.NOTHING_BIT;
+        for (Fixture fixture : b2body.getFixtureList())
+            fixture.setFilterData(filter);
+        b2body.applyLinearImpulse(new Vector2(-0.5f, 4f), b2body.getWorldCenter(), true);
     }
 
     public void captureTheFlag(){
@@ -285,7 +307,8 @@ public class Mario extends Sprite{
                 MarioBros.ENEMY_BIT |
                 MarioBros.ENEMY_HEAD_BIT |
                 MarioBros.ITEM_BIT |
-                MarioBros.FLAG_BIT;
+                MarioBros.FLAG_BIT |
+                MarioBros.WALL_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
@@ -323,7 +346,8 @@ public class Mario extends Sprite{
                 MarioBros.ENEMY_BIT |
                 MarioBros.ENEMY_HEAD_BIT |
                 MarioBros.ITEM_BIT |
-                MarioBros.FLAG_BIT;
+                MarioBros.FLAG_BIT |
+                MarioBros.WALL_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
@@ -358,7 +382,8 @@ public class Mario extends Sprite{
                 MarioBros.ENEMY_BIT |
                 MarioBros.ENEMY_HEAD_BIT |
                 MarioBros.ITEM_BIT |
-                MarioBros.FLAG_BIT;
+                MarioBros.FLAG_BIT |
+                MarioBros.WALL_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);

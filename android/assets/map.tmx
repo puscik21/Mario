@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="240" height="13" tilewidth="16" tileheight="16" infinite="0" nextobjectid="163">
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="240" height="13" tilewidth="16" tileheight="16" infinite="0" nextobjectid="165">
  <tileset firstgid="1" source="NES - Super Mario Bros - Tileset.tsx"/>
  <layer name="Warstwa Kafelków 3" width="240" height="13">
   <data encoding="base64" compression="zlib">
@@ -22,6 +22,23 @@
   <object id="14" x="1520" y="192.667" width="1056" height="16"/>
   <object id="16" x="2608.42" y="191.917" width="1231.75" height="16"/>
   <object id="23" x="3391.75" y="176" width="15.5" height="15.75"/>
+  <object id="158" x="3398.06" y="29.8108" width="3.66667" height="5"/>
+ </objectgroup>
+ <objectgroup name="pipes">
+  <object id="35" x="481" y="160.5" width="30" height="31"/>
+  <object id="36" x="624.25" y="144.25" width="31" height="48"/>
+  <object id="37" x="784.25" y="128" width="31.25" height="64.25"/>
+  <object id="39" x="992.5" y="128" width="30.75" height="63.75"/>
+  <object id="40" x="2752.25" y="160" width="31.25" height="32.25"/>
+  <object id="41" x="3056" y="160" width="31.75" height="31.75"/>
+  <object id="104" x="3087.82" y="176.182" width="144.182" height="15.8182"/>
+  <object id="105" x="3103.82" y="159.818" width="128" height="16.3636"/>
+  <object id="106" x="3120" y="143.818" width="111.818" height="16"/>
+  <object id="107" x="3136" y="128" width="95.8182" height="15.8182"/>
+  <object id="108" x="3152" y="112" width="79.8182" height="16"/>
+  <object id="109" x="3167.82" y="95.8182" width="64" height="16.3636"/>
+  <object id="110" x="3183.82" y="79.8182" width="48" height="15.8182"/>
+  <object id="111" x="3200" y="64" width="32" height="15.8182"/>
   <object id="87" x="2319.82" y="127.636" width="15.8182" height="64.5455"/>
   <object id="88" x="2304" y="144" width="15.8182" height="48.1818"/>
   <object id="89" x="2288" y="160" width="15.8182" height="32.1818"/>
@@ -38,25 +55,6 @@
   <object id="101" x="2607.64" y="143.636" width="32.1818" height="15.8182"/>
   <object id="102" x="2607.64" y="160" width="48.1818" height="15.8182"/>
   <object id="103" x="2608" y="175.818" width="63.6364" height="16"/>
-  <object id="104" x="3087.82" y="176.182" width="144.182" height="15.8182"/>
-  <object id="105" x="3103.82" y="159.818" width="128" height="16.3636"/>
-  <object id="106" x="3120" y="143.818" width="111.818" height="16"/>
-  <object id="107" x="3136" y="128" width="95.8182" height="15.8182"/>
-  <object id="108" x="3152" y="112" width="79.8182" height="16"/>
-  <object id="109" x="3167.82" y="95.8182" width="64" height="16.3636"/>
-  <object id="110" x="3183.82" y="79.8182" width="48" height="15.8182"/>
-  <object id="111" x="3200" y="64" width="32" height="15.8182"/>
-  <object id="154" x="176" y="176" width="16" height="16"/>
-  <object id="157" x="182.333" y="29" width="3.66667" height="5"/>
-  <object id="158" x="3398.06" y="29.8108" width="3.66667" height="5"/>
- </objectgroup>
- <objectgroup name="pipes">
-  <object id="35" x="481" y="160.5" width="30" height="31"/>
-  <object id="36" x="624.25" y="144.25" width="31" height="48"/>
-  <object id="37" x="784.25" y="128" width="31.25" height="64.25"/>
-  <object id="39" x="992.5" y="128" width="30.75" height="63.75"/>
-  <object id="40" x="2752.25" y="160" width="31.25" height="32.25"/>
-  <object id="41" x="3056" y="160" width="31.75" height="31.75"/>
  </objectgroup>
  <objectgroup name="coins">
   <object id="42" x="272.5" y="128" width="16" height="16"/>
@@ -131,11 +129,9 @@
   <object id="140" x="928" y="176" width="16" height="16"/>
  </objectgroup>
  <objectgroup name="flag">
-  <object id="152" x="183.705" y="30.8334" width="1.04545" height="144.545"/>
   <object id="162" x="3399.32" y="31.5684" width="1.04545" height="144.545"/>
  </objectgroup>
- <objectgroup name="castle">
-  <object id="160" x="3515.25" y="158.75" width="5.5" height="33"/>
-  <object id="161" x="323.25" y="158.5" width="5.5" height="33"/>
+ <objectgroup name="theWall">
+  <object id="164" x="80" y="48" width="16" height="144"/>
  </objectgroup>
 </map>

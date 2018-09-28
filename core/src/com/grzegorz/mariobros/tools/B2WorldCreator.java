@@ -14,6 +14,7 @@ import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.TileObjects.Brick;
 import com.grzegorz.mariobros.sprites.TileObjects.Coin;
 import com.grzegorz.mariobros.sprites.TileObjects.Flag;
+import com.grzegorz.mariobros.sprites.TileObjects.TheWall;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.enemies.Goomba;
 import com.badlogic.gdx.utils.Array;
@@ -23,6 +24,8 @@ public class B2WorldCreator {
     private Array<Goomba> goombas;
     private Array<Turtle> turtles;
     private Array<Enemy> enemies = new Array<Enemy>();
+
+    private Array<Brick> bricks = new Array<Brick>();
 
     public B2WorldCreator(PlayScreen screen){
 
@@ -69,7 +72,7 @@ public class B2WorldCreator {
 
         // create bricks bodies / fixtures
         for (MapObject object : map.getLayers().get(6).getObjects().getByType(RectangleMapObject.class)) {
-            new Brick(screen, object);
+            bricks.add(new Brick(screen, object));
         }
 
         // create all goombas
@@ -92,6 +95,9 @@ public class B2WorldCreator {
         for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class))
             new Flag(screen, object);
 
+        for (MapObject object : map.getLayers().get(10).getObjects().getByType(RectangleMapObject.class))
+            new TheWall(screen, object);
+
 
         enemies.addAll(goombas);
         enemies.addAll(turtles);
@@ -103,5 +109,9 @@ public class B2WorldCreator {
 
     public Array<Enemy> getEnemnies() {
         return enemies;
+    }
+
+    public Array<Brick> getBricks() {
+        return bricks;
     }
 }

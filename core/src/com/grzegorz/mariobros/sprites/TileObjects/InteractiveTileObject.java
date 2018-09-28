@@ -66,4 +66,8 @@ public abstract class InteractiveTileObject {
                 (int) (body.getPosition().y * MarioBros.PPM / 16));
                 // /16 bo to rozmiar komorki
     }
+
+    public Body getBody() {
+        return body;
+    }
 }

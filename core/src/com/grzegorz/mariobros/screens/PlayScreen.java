@@ -19,12 +19,15 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
+import com.grzegorz.mariobros.sprites.TileObjects.Brick;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.Mario;
+import com.grzegorz.mariobros.sprites.items.BumpedBrick;
 import com.grzegorz.mariobros.sprites.items.Item;
 import com.grzegorz.mariobros.sprites.items.ItemDef;
 import com.grzegorz.mariobros.sprites.items.Mushroom;
 import com.grzegorz.mariobros.tools.B2WorldCreator;
+import com.grzegorz.mariobros.tools.Timer;
 import com.grzegorz.mariobros.tools.WorldContactListener;
 
 import java.util.concurrent.Executors;
@@ -64,6 +67,8 @@ public class PlayScreen implements Screen {
     private Music music;
 
     private boolean theEnd;
+    private Timer timer;
+
 
     public PlayScreen(MarioBros game){
         atlas = new TextureAtlas("Mario_and_Enemies2.pack");
@@ -156,16 +161,25 @@ public class PlayScreen implements Screen {
 
         world.step(1/60f, 6, 2);
 
-        // TODO the end of the game... it need to be improved in future
+        // TODO the end of the game... not sure about disposing things
         // when Mario came to the castle
         if (player.getX() > 35.04) {
             theEnd = true;
             // TODO dlaczego to wyrzuca blad?
-            //world.destroyBody(player.b2body);
+            // chyba trzeba to w jakims odpowiednim momencie wywolac
+            // world.destroyBody(player.b2body);
         }
 
         if (!theEnd)
             player.update(dt);
+
+        if (hud.getTime() == 0 && !player.isDead())
+            player.endOfTime();
+
+        if (player.getY() < -1 && !player.isDead())
+            player.outOfMap();
+
+
 
         // jezeli wypadnaie poza mape to usun z listy przeciwnikow
         for (Enemy enemy : creator.getEnemnies()){
@@ -190,13 +204,28 @@ public class PlayScreen implements Screen {
                 world.destroyBody(item.getBody());
             }
         }
-
         for (Item item : items)
             item.update(dt);
 
+        for (Brick brick : creator.getBricks()) {
+            if (brick.getBumpedBrick() != null) {
+                brick.getBumpedBrick().update(dt);
+                if (brick.getBumpedBrick().isToDestroy() && !brick.getBumpedBrick().isDestroyed()) {
+                    //world.destroyBody(brick.getBumpedBrick().getBody());
+                    brick.setTimerNull();
+                    brick.setBumpedBrick(null);
+                   // brick.getBumpedBrick().destroy();
+                }
+            }
+            else if(brick.isDoAnimation())
+                brick.setBumpedBrick(brick.new BumpedBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y + 0 / MarioBros.PPM));
+        }
+
         if (theEnd) {
-            Hud.addScore(50);
-            hud.timeDecrease();
+            if (hud.getTime() > 0) {
+                Hud.addScore(50);
+                hud.timeDecrease();
+            }
         }
         else
             hud.update(dt);
@@ -229,16 +258,26 @@ public class PlayScreen implements Screen {
             enemy.draw(game.batch);
         for (Item item : items)
             item.draw(game.batch);
+
+        for (Brick brick : creator.getBricks()) {
+            if (brick.getBumpedBrick() != null) {
+                brick.getBumpedBrick().update(dt);
+                brick.getBumpedBrick().draw(game.batch);
+            }
+        }
+
         game.batch.end();
 
         // ustawienia aby do batcha zaladowac tylko to co widzi kamera
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
+        // GAME OVER
         if (gameOver()){
             game.setScreen(new GameOverScreen(game));
             dispose();
         }
+        // GAME WON
         else if (gameWon()){
 //            try {
 //                Thread.sleep(1000);
@@ -250,15 +289,32 @@ public class PlayScreen implements Screen {
         }
     }
 
+
     public boolean gameOver(){
         return player.currentState == Mario.State.DEAD && player.getStateTimer() > 3;
     }
 
+
     // metoda sprawdzajaca czy mozna juz przelaczyc screen'a
     // theEnd uzywane jest jeszcze po to by dac znac Hud'owi czy ma zmieniac czas na punkty
     private boolean gameWon(){
-        //return theEnd && timerElapsedTime > 3;
-        return theEnd && hud.getTime() == 0;
+        boolean itsTime = false;
+
+        if (timer == null && hud.getTime() <= 0) {
+            timer = new Timer(3000);
+            Thread thread = new Thread(timer);
+            thread.start();
+        }
+        if (timer != null && timer.isItTime())
+            itsTime = true;
+        return theEnd && itsTime;
+    }
+
+    public void removeItem(){
+        // wyrzucalo blad, powinno sie niszczyc w updacie
+        //items.removeValue(item, true);
+        //world.destroyBody(items.pop().getBody());
+        items.peek().destroy();
     }
 
     @Override
