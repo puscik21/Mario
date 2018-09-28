@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Array;
@@ -14,13 +16,19 @@ import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 
+import static com.grzegorz.mariobros.sprites.enemies.Goomba.State.KILLED_BY_BRICK;
+
 public class Goomba extends Enemy {
 
     private float stateTime;
     private Animation walkAnimation;
     private Array<TextureRegion> frames;
+    public enum State {KILLED_BY_BRICK, LIVING}
+    private State currentState;
+    private float deadRotationDegrees;
     private boolean setToDestroy;
     private boolean destroyed;
+    private boolean jumped;
 
     public Goomba(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -35,21 +43,50 @@ public class Goomba extends Enemy {
         setBounds(getX(), getY(), 16 / MarioBros.PPM, 16 / MarioBros.PPM);
         setToDestroy = false;
         destroyed = false;
+        currentState = State.LIVING;
+        deadRotationDegrees = 0;
     }
 
     public void update(float dt) {
         stateTime += dt;
         if (setToDestroy && !destroyed) {
-            world.destroyBody(b2body);
-            destroyed = true;
-            // 32 - poniewaz jest to 3 tekstura w pliku (0, 16, 32, 48,...)
-            setRegion(new TextureRegion(screen.getAtlas().findRegion("goomba"), 32, 0, 16, 16));
-            stateTime =0;
+            if (currentState == State.KILLED_BY_BRICK){
+                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+                deadRotationDegrees += 0.1;
+                rotate(deadRotationDegrees);
+                if (!jumped) {
+                    jumped = true;
+                    Filter filter = new Filter();
+                    filter.maskBits = MarioBros.NOTHING_BIT;
+                    for (Fixture fixture : b2body.getFixtureList())
+                        fixture.setFilterData(filter);
+                    b2body.applyLinearImpulse(new Vector2(0.5f, 4f), b2body.getWorldCenter(), true);
+                }
+                if (stateTime > 3) {
+                    world.destroyBody(b2body);
+                    destroyed = true;
+                    stateTime = 0;
+                }
+            }
+            else {
+                world.destroyBody(b2body);
+                destroyed = true;
+                // 32 - poniewaz jest to 3 tekstura w pliku (0, 16, 32, 48,...)
+                setRegion(new TextureRegion(screen.getAtlas().findRegion("goomba"), 32, 0, 16, 16));
+                stateTime = 0;
+            }
         } else if (!destroyed) {
             b2body.setLinearVelocity(velocity);
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setRegion((TextureRegion) walkAnimation.getKeyFrame(stateTime, true));
         }
+    }
+
+    @Override
+    public void brickKill(){
+        currentState = State.KILLED_BY_BRICK;
+        setToDestroy = true;
+        stateTime = 0;
     }
 
     @Override
@@ -68,6 +105,7 @@ public class Goomba extends Enemy {
                 MarioBros.BRICK_BIT |
                 MarioBros.MARIO_BIT |
                 MarioBros.OBJECT_BIT |
+                MarioBros.BUMPED_BRICK_BIT |
                 MarioBros.ENEMY_BIT;
 
         fdef.shape = shape;

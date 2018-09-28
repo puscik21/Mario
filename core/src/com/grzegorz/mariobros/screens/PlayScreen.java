@@ -7,7 +7,6 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -22,7 +21,6 @@ import com.grzegorz.mariobros.scenes.Hud;
 import com.grzegorz.mariobros.sprites.TileObjects.Brick;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.Mario;
-import com.grzegorz.mariobros.sprites.items.BumpedBrick;
 import com.grzegorz.mariobros.sprites.items.Item;
 import com.grzegorz.mariobros.sprites.items.ItemDef;
 import com.grzegorz.mariobros.sprites.items.Mushroom;
@@ -30,10 +28,7 @@ import com.grzegorz.mariobros.tools.B2WorldCreator;
 import com.grzegorz.mariobros.tools.Timer;
 import com.grzegorz.mariobros.tools.WorldContactListener;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class PlayScreen implements Screen {
     // Final variables
@@ -211,14 +206,13 @@ public class PlayScreen implements Screen {
             if (brick.getBumpedBrick() != null) {
                 brick.getBumpedBrick().update(dt);
                 if (brick.getBumpedBrick().isToDestroy() && !brick.getBumpedBrick().isDestroyed()) {
-                    //world.destroyBody(brick.getBumpedBrick().getBody());
+                    world.destroyBody(brick.getBumpedBrick().getBody());
                     brick.setTimerNull();
                     brick.setBumpedBrick(null);
-                   // brick.getBumpedBrick().destroy();
                 }
             }
             else if(brick.isDoAnimation())
-                brick.setBumpedBrick(brick.new BumpedBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y + 0 / MarioBros.PPM));
+                brick.setBumpedBrick(brick.new BumpedBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y));
         }
 
         if (theEnd) {

@@ -32,6 +32,8 @@ public abstract class Enemy extends Sprite {
 
     public abstract void hitOnHead(Mario mario);
 
+    public abstract void brickKill();
+
     public abstract void onEnemyHit(Enemy enemy);
 
     public boolean isDangerous() {

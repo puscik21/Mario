@@ -2,23 +2,19 @@ package com.grzegorz.mariobros.sprites.TileObjects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
-import com.grzegorz.mariobros.sprites.items.BumpedBrick;
 import com.grzegorz.mariobros.sprites.items.Item;
-import com.grzegorz.mariobros.sprites.items.ItemDef;
-import com.grzegorz.mariobros.sprites.items.Mushroom;
 
 public class Brick extends InteractiveTileObject {
 
@@ -76,6 +72,16 @@ public class Brick extends InteractiveTileObject {
             bdef.position.set(getX() , getY());
             bdef.type = BodyDef.BodyType.DynamicBody;
             body = world.createBody(bdef);
+
+            FixtureDef fdef = new FixtureDef();
+            PolygonShape shape = new PolygonShape();
+            shape.setAsBox(8 / MarioBros.PPM, 8 / MarioBros.PPM);
+            fdef.filter.categoryBits = MarioBros.BUMPED_BRICK_BIT;
+            fdef.filter.maskBits = MarioBros.ENEMY_BIT |
+                    MarioBros.GROUND_BIT;
+
+            fdef.shape = shape;
+            body.createFixture(fdef).setUserData(this);
         }
 
         @Override
@@ -91,13 +97,13 @@ public class Brick extends InteractiveTileObject {
             //body.setLinearVelocity(new Vector2(0, 0));
             body.setGravityScale(2);
             if (!jumped) {
-                body.applyLinearImpulse(new Vector2(0, 2f), body.getWorldCenter(), true);
+                body.applyLinearImpulse(new Vector2(0, 1.5f), body.getWorldCenter(), true);
                 jumped = true;
             }
             if (body.getPosition().y < firstY) {
                 body.setLinearVelocity(new Vector2(0, 0));
                 body.setGravityScale(0);
-                destroyed = true;
+                //destroyed = true;
             }
 //            if (body.getPosition().y > firstY + 50 / MarioBros.PPM) {
 //                body.setLinearVelocity(new Vector2(0, 0));

@@ -41,6 +41,14 @@ public class WorldContactListener implements ContactListener{
                 else
                     ((Enemy) fixB.getUserData()).hitOnHead((Mario) fixA.getUserData());
                 break;
+            // zwalczanie mobkow cegla
+            // TODO zrobic aby dzialalo tylko przy duzym Mario
+            // moze dodac odpowiednia flage do BumpedBrick?
+            case MarioBros.ENEMY_BIT | MarioBros.BUMPED_BRICK_BIT:
+                if (fixA.getFilterData().categoryBits == MarioBros.ENEMY_BIT)
+                    ((Enemy) fixA.getUserData()).brickKill();
+                else
+                    ((Enemy) fixB.getUserData()).brickKill();
             // Mobek + obiekt (rura)
             case MarioBros.ENEMY_BIT | MarioBros.OBJECT_BIT:
                 if(fixA.getFilterData().categoryBits == MarioBros.ENEMY_BIT)

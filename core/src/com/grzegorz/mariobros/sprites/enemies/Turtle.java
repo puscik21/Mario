@@ -59,6 +59,7 @@ public class Turtle extends Enemy {
                 MarioBros.BRICK_BIT |
                 MarioBros.MARIO_BIT |
                 MarioBros.OBJECT_BIT |
+                MarioBros.BUMPED_BRICK_BIT |
                 MarioBros.ENEMY_BIT;
 
         fdef.shape = shape;
@@ -146,6 +147,11 @@ public class Turtle extends Enemy {
         }
         else
             b2body.setLinearVelocity(velocity);
+    }
+
+    @Override
+    public void brickKill() {
+
     }
 
     @Override
