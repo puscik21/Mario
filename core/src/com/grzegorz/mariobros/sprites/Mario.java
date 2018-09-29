@@ -28,7 +28,7 @@ public class Mario extends Sprite{
     public Body b2body;
 
     // Animation variables
-    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD, SLIDING, ENDING};
+    public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD, SLIDING, ENDING}
     public State currentState;
     public State previousState;
     private TextureRegion marioStand;

@@ -24,6 +24,7 @@ import com.grzegorz.mariobros.sprites.Mario;
 import com.grzegorz.mariobros.sprites.items.Item;
 import com.grzegorz.mariobros.sprites.items.ItemDef;
 import com.grzegorz.mariobros.sprites.items.Mushroom;
+import com.grzegorz.mariobros.sprites.items.PieceOfBrick;
 import com.grzegorz.mariobros.tools.B2WorldCreator;
 import com.grzegorz.mariobros.tools.Timer;
 import com.grzegorz.mariobros.tools.WorldContactListener;
@@ -101,7 +102,6 @@ public class PlayScreen implements Screen {
 
         items = new Array<Item>();
         itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
-
     }
 
     public void spawnItem(ItemDef iDef){
@@ -202,9 +202,10 @@ public class PlayScreen implements Screen {
         for (Item item : items)
             item.update(dt);
 
+        // TODO zrobic odpowiednia funkcje do tego bo za duzo to zajmuje
         for (Brick brick : creator.getBricks()) {
             if (brick.getBumpedBrick() != null) {
-                brick.getBumpedBrick().update(dt);
+                //brick.getBumpedBrick().update(dt);
                 if (brick.getBumpedBrick().isToDestroy() && !brick.getBumpedBrick().isDestroyed()) {
                     world.destroyBody(brick.getBumpedBrick().getBody());
                     brick.setTimerNull();
@@ -213,6 +214,21 @@ public class PlayScreen implements Screen {
             }
             else if(brick.isDoAnimation())
                 brick.setBumpedBrick(brick.new BumpedBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y));
+
+            else if (brick.isTurnToPieces() && brick.getPieces().size() < 4) {
+                brick.getPieces().add(new PieceOfBrick(this, brick.getBody().getPosition().x  - 4 / MarioBros.PPM,
+                        brick.getBody().getPosition().y + 4 / MarioBros.PPM, -1f, 1.5f));
+                brick.getPieces().add(new PieceOfBrick(this, brick.getBody().getPosition().x  + 4 / MarioBros.PPM,
+                        brick.getBody().getPosition().y + 4 / MarioBros.PPM, 1f, 1.5f));
+                brick.getPieces().add(new PieceOfBrick(this, brick.getBody().getPosition().x  - 4 / MarioBros.PPM,
+                        brick.getBody().getPosition().y - 4 / MarioBros.PPM, -1f, 0.75f));
+                brick.getPieces().add(new PieceOfBrick(this, brick.getBody().getPosition().x  + 4 / MarioBros.PPM,
+                        brick.getBody().getPosition().y - 4 / MarioBros.PPM, 1f, 0.75f));
+            }
+
+            else if (brick.isTurnToPieces() && brick.getPieces().size() == 4)
+                for (int i = 0; i < 4; i++)
+                    brick.getPieces().get(i).update(dt);
         }
 
         if (theEnd) {
@@ -253,11 +269,20 @@ public class PlayScreen implements Screen {
         for (Item item : items)
             item.draw(game.batch);
 
+        // animations for bricks
         for (Brick brick : creator.getBricks()) {
+            // hitted by the little Mario
             if (brick.getBumpedBrick() != null) {
                 brick.getBumpedBrick().update(dt);
                 brick.getBumpedBrick().draw(game.batch);
             }
+            // hitted by the big Mario
+            else if (brick.isTurnToPieces())
+                for (int i=0; i < brick.getPieces().size(); i++) {
+                    System.out.println(brick.getPieces().size());
+                    //brick.getPieces().get(i).update(dt);
+                    brick.getPieces().get(i).draw(game.batch);
+                }
         }
 
         game.batch.end();

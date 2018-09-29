@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.grzegorz.mariobros.MarioBros;
@@ -15,6 +14,9 @@ import com.grzegorz.mariobros.scenes.Hud;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
 import com.grzegorz.mariobros.sprites.items.Item;
+import com.grzegorz.mariobros.sprites.items.PieceOfBrick;
+
+import java.util.ArrayList;
 
 public class Brick extends InteractiveTileObject {
 
@@ -54,16 +56,17 @@ public class Brick extends InteractiveTileObject {
     // Wewnetrzna klasa BumpedBrick
     public class BumpedBrick extends Item {
 
-        private PlayScreen screen;
+        private TextureRegion[] piecesOfBrick;
         private float firstY;
         private boolean jumped;
 
         public BumpedBrick(PlayScreen screen, float x, float y) {
             super(screen, x, y);
-            this.screen = screen;
             setRegion(new TextureRegion(new Texture(Gdx.files.internal("bumped_brick.png"))));
             firstY = y;
-            setBounds(getX(), getY(), 16 / MarioBros.PPM, 21 / MarioBros.PPM);
+            setBounds(getX(), getY(), 16 / MarioBros.PPM, 16 / MarioBros.PPM);
+
+            piecesOfBrick = new TextureRegion[4];
         }
 
         @Override
@@ -75,18 +78,13 @@ public class Brick extends InteractiveTileObject {
 
             FixtureDef fdef = new FixtureDef();
             PolygonShape shape = new PolygonShape();
-            shape.setAsBox(8 / MarioBros.PPM, 8 / MarioBros.PPM);
+            shape.setAsBox(8/ MarioBros.PPM, 8 / MarioBros.PPM);
             fdef.filter.categoryBits = MarioBros.BUMPED_BRICK_BIT;
             fdef.filter.maskBits = MarioBros.ENEMY_BIT |
                     MarioBros.GROUND_BIT;
 
             fdef.shape = shape;
             body.createFixture(fdef).setUserData(this);
-        }
-
-        @Override
-        public void use() {
-
         }
 
         @Override
@@ -110,6 +108,12 @@ public class Brick extends InteractiveTileObject {
 //                body.setGravityScale(2);
 //            }
         }
+
+
+        @Override
+        public void use() {
+
+        }
     }
 
 
@@ -117,13 +121,16 @@ public class Brick extends InteractiveTileObject {
     // ##### Glowna klasa #####
     private Brick.Timer timer;
     private Brick.BumpedBrick bumpedBrick;
-    private boolean doAnimation;
     private Thread thread;
+    private ArrayList<PieceOfBrick> pieces;
+    private boolean doAnimation;
+    private boolean turnToPieces;
 
     public Brick(PlayScreen screen, MapObject object){
         super(screen, object);
         fixture.setUserData(this);
         setCategoryFilter(MarioBros.BRICK_BIT);
+        pieces = new ArrayList<PieceOfBrick>(4);
     }
 
     public boolean isDoAnimation() {
@@ -134,8 +141,16 @@ public class Brick extends InteractiveTileObject {
         return bumpedBrick;
     }
 
+    public boolean isTurnToPieces(){
+        return turnToPieces;
+    }
+
     public void setBumpedBrick(BumpedBrick bumpedBrick) {
         this.bumpedBrick = bumpedBrick;
+    }
+
+    public ArrayList<PieceOfBrick> getPieces() {
+        return pieces;
     }
 
     public void setTimerNull() {
@@ -148,6 +163,11 @@ public class Brick extends InteractiveTileObject {
         if (mario.isMarioBig()) {
             setCategoryFilter(MarioBros.DESTROYED_BIT);
             getCell().setTile(null);
+
+
+            turnToPieces = true;
+
+
             Hud.addScore(200);
             Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/breakblock.wav"));
             //MarioBros.manager.get("sounds/breakblock.wav", Sound.class).play();

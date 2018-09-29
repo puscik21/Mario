@@ -137,7 +137,7 @@ public class Turtle extends Enemy {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - 8 / MarioBros.PPM);
 
         if (currentState == State.DEAD){
-            deadRotationDegrees += 1;
+            deadRotationDegrees += 0.4f;
             rotate(deadRotationDegrees);
             if (stateTime > 5 && !destroyed){
                 world.destroyBody(b2body);
