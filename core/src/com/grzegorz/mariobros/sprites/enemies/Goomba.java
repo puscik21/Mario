@@ -60,7 +60,7 @@ public class Goomba extends Enemy {
                     filter.maskBits = MarioBros.NOTHING_BIT;
                     for (Fixture fixture : b2body.getFixtureList())
                         fixture.setFilterData(filter);
-                    b2body.applyLinearImpulse(new Vector2(0.5f, 4f), b2body.getWorldCenter(), true);
+                    b2body.applyLinearImpulse(new Vector2(0.5f, 3f), b2body.getWorldCenter(), true);
                 }
                 if (stateTime > 3) {
                     world.destroyBody(b2body);
