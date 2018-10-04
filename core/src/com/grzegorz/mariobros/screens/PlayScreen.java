@@ -95,10 +95,11 @@ public class PlayScreen implements Screen {
         world.setContactListener(new WorldContactListener());
 
 //        music = MarioBros.manager.get("Mario_GFX/music/ds3_soundtrack.mp3", Music.class);
-        music = Gdx.audio.newMusic(Gdx.files.internal("music/ds3_soundtrack.mp3"));
-        music.setLooping(true);
-        music.setVolume(1);
-        music.play();
+        // TODO play music
+//        music = Gdx.audio.newMusic(Gdx.files.internal("music/ds3_soundtrack.mp3"));
+//        music.setLooping(true);
+//        music.setVolume(1);
+//        music.play();
 
         items = new Array<Item>();
         itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
@@ -286,6 +287,9 @@ public class PlayScreen implements Screen {
             if (brick.getBumpedBrick() != null) {
                 brick.getBumpedBrick().update(dt);
                 brick.getBumpedBrick().draw(game.batch);
+            }
+            if (brick.getKillingBrick() != null) {
+                brick.getKillingBrick().update(dt);
             }
             // hitted by the big Mario
             else if (brick.isTurnToPieces())
