@@ -89,7 +89,7 @@ public class WorldContactListener implements ContactListener{
                 else
                     ((Item) fixB.getUserData()).reverseVelocity(true, false);
                 break;
-                // TODO flaga wygranko
+                // flaga wygranko
             case MarioBros.MARIO_BIT | MarioBros.FLAG_BIT:
                 if (fixA.getFilterData().categoryBits == MarioBros.MARIO_BIT)
                     ((Mario) fixA.getUserData()).captureTheFlag();

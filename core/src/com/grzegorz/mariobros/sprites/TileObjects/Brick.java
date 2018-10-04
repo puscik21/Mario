@@ -39,15 +39,27 @@ public class Brick extends InteractiveTileObject {
 //                    e.printStackTrace();
 //                }
             }
-            changeBrick();
+            if (bumpedBrick != null)
+                changeBumpedBrick();
+            else if (killingBrick != null)
+                changeKillingBrick();
         }
 
-        private void changeBrick(){
+
+        private void changeBumpedBrick(){
                 //screen.removeItem();
             System.out.println("czas");
             getCell().setTile(map.getTileSets().getTile(2));
             bumpedBrick.destroy();
             doAnimation = false;
+        }
+
+
+        private void changeKillingBrick() {
+            //screen.removeItem();
+            System.out.println("czas");
+            killingBrick.destroy();
+            doKillingBrick = false;
         }
     }
 
@@ -56,7 +68,6 @@ public class Brick extends InteractiveTileObject {
     // Wewnetrzna klasa BumpedBrick
     public class BumpedBrick extends Item {
 
-        private TextureRegion[] piecesOfBrick;
         private float firstY;
         private boolean jumped;
 
@@ -65,8 +76,56 @@ public class Brick extends InteractiveTileObject {
             setRegion(new TextureRegion(new Texture(Gdx.files.internal("bumped_brick.png"))));
             firstY = y;
             setBounds(getX(), getY(), 16 / MarioBros.PPM, 16 / MarioBros.PPM);
+        }
 
-            piecesOfBrick = new TextureRegion[4];
+        @Override
+        public void defineItem() {
+            BodyDef bdef = new BodyDef();
+            bdef.position.set(getX() , getY());
+            bdef.type = BodyDef.BodyType.DynamicBody;
+            body = world.createBody(bdef);
+        }
+
+        @Override
+        public void update(float dt) {
+            super.update(dt);
+            setPosition(body.getPosition().x - getWidth() / 2, body.getPosition().y - getHeight() / 2);
+            //body.setGravityScale(0);
+            //body.setLinearVelocity(new Vector2(0, 0));
+            body.setGravityScale(2);
+            if (!jumped) {
+                body.applyLinearImpulse(new Vector2(0, 1.5f), body.getWorldCenter(), true);
+                jumped = true;
+            }
+            if (body.getPosition().y < firstY) {
+                body.setLinearVelocity(new Vector2(0, 0));
+                body.setGravityScale(0);
+                //destroyed = true;
+            }
+//            if (body.getPosition().y > firstY + 50 / MarioBros.PPM) {
+//                body.setLinearVelocity(new Vector2(0, 0));
+//                body.setGravityScale(2);
+//            }
+        }
+
+
+        @Override
+        public void use() {
+
+        }
+    }
+
+    // Wewnetrzna klasa BumpedBrick
+    public class KillingBrick extends Item {
+
+        private float firstY;
+        private boolean jumped;
+
+        public KillingBrick(PlayScreen screen, float x, float y) {
+            super(screen, x, y);
+            //setRegion(new TextureRegion(new Texture(Gdx.files.internal("bumped_brick.png"))));
+            firstY = y;
+            setBounds(getX(), getY(), 16 / MarioBros.PPM, 16 / MarioBros.PPM);
         }
 
         @Override
@@ -79,6 +138,7 @@ public class Brick extends InteractiveTileObject {
             FixtureDef fdef = new FixtureDef();
             PolygonShape shape = new PolygonShape();
             shape.setAsBox(8/ MarioBros.PPM, 8 / MarioBros.PPM);
+            //TODO KILLING nie BUMPED
             fdef.filter.categoryBits = MarioBros.BUMPED_BRICK_BIT;
             fdef.filter.maskBits = MarioBros.ENEMY_BIT |
                     MarioBros.GROUND_BIT;
@@ -116,14 +176,20 @@ public class Brick extends InteractiveTileObject {
         }
     }
 
-
+    /** TODO
+     * stworzyc nowa klase KillingBrick
+     * przerobic wyrzucanie bumped brick przy malym Mario
+     * przerobic bumped brick zeby nie zabijala
+     */
 
     // ##### Glowna klasa #####
     private Brick.Timer timer;
     private Brick.BumpedBrick bumpedBrick;
+    private Brick.KillingBrick killingBrick;
     private Thread thread;
     private ArrayList<PieceOfBrick> pieces;
     private boolean doAnimation;
+    private boolean doKillingBrick;
     private boolean turnToPieces;
 
     public Brick(PlayScreen screen, MapObject object){
@@ -137,16 +203,28 @@ public class Brick extends InteractiveTileObject {
         return doAnimation;
     }
 
+    public boolean isDoKillingBrick() {
+        return doKillingBrick;
+    }
+
     public BumpedBrick getBumpedBrick() {
         return bumpedBrick;
     }
 
-    public boolean isTurnToPieces(){
-        return turnToPieces;
+    public KillingBrick getKillingBrick() {
+        return killingBrick;
     }
 
     public void setBumpedBrick(BumpedBrick bumpedBrick) {
         this.bumpedBrick = bumpedBrick;
+    }
+
+    public void setKillingBrick(KillingBrick killingBrick) {
+        this.killingBrick = killingBrick;
+    }
+
+    public boolean isTurnToPieces(){
+        return turnToPieces;
     }
 
     public ArrayList<PieceOfBrick> getPieces() {
@@ -163,9 +241,19 @@ public class Brick extends InteractiveTileObject {
         if (mario.isMarioBig()) {
             setCategoryFilter(MarioBros.DESTROYED_BIT);
             getCell().setTile(null);
-
-
             turnToPieces = true;
+
+
+
+            doKillingBrick = true;
+            if (timer == null){
+                timer = new Timer(this);
+                thread = new Thread(timer);
+                thread.start();
+            }
+            else
+                System.out.println("timer nie null ._.");
+
 
 
             Hud.addScore(200);

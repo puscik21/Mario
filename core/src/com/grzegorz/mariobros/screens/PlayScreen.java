@@ -215,6 +215,17 @@ public class PlayScreen implements Screen {
             else if(brick.isDoAnimation())
                 brick.setBumpedBrick(brick.new BumpedBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y));
 
+            if (brick.getKillingBrick() != null) {
+                //brick.getBumpedBrick().update(dt);
+                if (brick.getKillingBrick().isToDestroy() && !brick.getKillingBrick().isDestroyed()) {
+                    world.destroyBody(brick.getKillingBrick().getBody());
+                    brick.setTimerNull();
+                    brick.setKillingBrick(null);
+                }
+            }
+            else if(brick.isDoKillingBrick())
+                brick.setKillingBrick(brick.new KillingBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y));
+
             else if (brick.isTurnToPieces() && brick.getPieces().size() < 4) {
                 brick.getPieces().add(new PieceOfBrick(this, brick.getBody().getPosition().x  - 4 / MarioBros.PPM,
                         brick.getBody().getPosition().y + 4 / MarioBros.PPM, -1f, 1.5f));
