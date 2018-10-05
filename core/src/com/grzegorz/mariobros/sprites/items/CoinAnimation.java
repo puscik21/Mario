@@ -20,10 +20,6 @@ public class CoinAnimation extends Item {
     public CoinAnimation(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         this.screen = screen;
-
-        // TODO usunac
-        setRegion(new TextureRegion(new Texture(Gdx.files.internal("piece_of_brick.png"))));
-
         setBounds(getX(), getY(), 16 / MarioBros.PPM, 16 / MarioBros.PPM);
         body.applyLinearImpulse(new Vector2(0, 3.8f), body.getWorldCenter(), true);
         firstY = y - 2 / MarioBros.PPM;
