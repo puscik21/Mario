@@ -65,7 +65,7 @@ public class Mario extends Sprite{
 
         // animacja biegu
         // tworzymy tablice z odpowiednimi teksturami animacji
-        com.badlogic.gdx.utils.Array<TextureRegion> frames = new com.badlogic.gdx.utils.Array<TextureRegion>(14);
+        com.badlogic.gdx.utils.Array<TextureRegion> frames = new com.badlogic.gdx.utils.Array<TextureRegion>(4);
         // wypelniamy tablice obrazkami biegu
         for (int i=1; i<4; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
@@ -151,7 +151,6 @@ public class Mario extends Sprite{
             numbersOfUsage += 1;
         }
     }
-
     public TextureRegion getFrame(float dt){
         currentState = getState();
         TextureRegion region;
@@ -177,9 +176,9 @@ public class Mario extends Sprite{
                 break;
             case FALLING:
             case STANDING:
-                default:
-                    region = marioIsBig ? bigMarioStand : marioStand;
-                    break;
+            default:
+                region = marioIsBig ? bigMarioStand : marioStand;
+                break;
         }
 
         if ((b2body.getLinearVelocity().x < 0 || !runningRight) && !region.isFlipX()){
@@ -192,12 +191,13 @@ public class Mario extends Sprite{
         }
 
         /* jezeli stan jest taki sam jak poprzedni to zwiekszamy stateTimer
-        * jesli swie zwiekszyl, musimy zresetowac timer */
+         * jesli swie zwiekszyl, musimy zresetowac timer */
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
 
         return region;
     }
+
 
     // zwraca stan Mario
     public State getState(){

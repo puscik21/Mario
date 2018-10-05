@@ -9,6 +9,7 @@ import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.scenes.Hud;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
+import com.grzegorz.mariobros.sprites.items.CoinAnimation;
 import com.grzegorz.mariobros.sprites.items.ItemDef;
 import com.grzegorz.mariobros.sprites.items.Mushroom;
 
@@ -37,7 +38,11 @@ public class Coin extends InteractiveTileObject {
             getCell().setTile(tileSet.getTile(BLANK_COIN));
             if(object.getProperties().containsKey("mushroom"))
                 screen.spawnItem(new ItemDef(new Vector2(body.getPosition().x, body.getPosition().y + 16 / MarioBros.PPM),
-                    Mushroom.class));
+                        Mushroom.class));
+            else {
+                screen.spawnItem(new ItemDef(new Vector2(body.getPosition().x, body.getPosition().y + 16 / MarioBros.PPM),
+                        CoinAnimation.class));
+            }
             Hud.addScore(200);
             coinSound.play();
             //MarioBros.manager.get("sounds/coin.wav", Sound.class).play();

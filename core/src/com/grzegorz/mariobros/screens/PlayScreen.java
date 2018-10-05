@@ -21,6 +21,7 @@ import com.grzegorz.mariobros.scenes.Hud;
 import com.grzegorz.mariobros.sprites.TileObjects.Brick;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.Mario;
+import com.grzegorz.mariobros.sprites.items.CoinAnimation;
 import com.grzegorz.mariobros.sprites.items.Item;
 import com.grzegorz.mariobros.sprites.items.ItemDef;
 import com.grzegorz.mariobros.sprites.items.Mushroom;
@@ -115,6 +116,8 @@ public class PlayScreen implements Screen {
             if(idef.type == Mushroom.class)
                 items.add(new Mushroom(this, idef.position.x, idef.position.y));
             // TODO tutaj bedzie if z monetami
+            if (idef.type == CoinAnimation.class)
+                items.add(new CoinAnimation(this, idef.position.x, idef.position.y));
         }
     }
 

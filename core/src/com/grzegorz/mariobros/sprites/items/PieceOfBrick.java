@@ -32,7 +32,6 @@ public class PieceOfBrick extends Item {
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(4/ MarioBros.PPM, 4 / MarioBros.PPM);
         fdef.filter.categoryBits = MarioBros.NOTHING_BIT;
-        fdef.filter.maskBits = MarioBros.GROUND_BIT;
 
         fdef.shape = shape;
         body.createFixture(fdef).setUserData(this);

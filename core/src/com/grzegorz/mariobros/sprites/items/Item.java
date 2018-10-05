@@ -53,12 +53,7 @@ public abstract class Item extends Sprite {
     }
 
     public void update(float dt){
-        // w PlayScreen(w update()) usuwam grzybka i jego body, raczej tak zostanie
 
-//        if (toDestroy && !destroyed){
-//            world.destroyBody(body);
-//            destroyed = true;
-//        }
     }
 
     @Override
