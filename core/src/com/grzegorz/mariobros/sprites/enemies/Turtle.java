@@ -1,7 +1,6 @@
 package com.grzegorz.mariobros.sprites.enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -26,8 +25,7 @@ public class Turtle extends Enemy {
     private Array<TextureRegion> frames;
     private TextureRegion shell;
     private float deadRotationDegrees;
-    private boolean setToDestroy;
-    private boolean destroyed;
+
 
     public Turtle(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -87,7 +85,7 @@ public class Turtle extends Enemy {
             if (((Turtle) enemy).currentState == State.MOVING_SHELL && currentState != State.MOVING_SHELL)
                 killed();
             else if (((Turtle) enemy).currentState == State.STANDING_SHELL && currentState == State.WALKING)
-                ((Turtle) enemy).kick(getX() <= ((Turtle) enemy).getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
+                ((Turtle) enemy).kick(getX() <= enemy.getX() ? Turtle.KICK_RIGHT_SPEED : Turtle.KICK_LEFT_SPEED);
             else if (((Turtle) enemy).currentState == State.WALKING && currentState == State.WALKING)
                 reverseVelocity(true, false);
         }
@@ -165,14 +163,6 @@ public class Turtle extends Enemy {
             kick(mario.getX() <= this.getX() ? KICK_RIGHT_SPEED : KICK_LEFT_SPEED);
         }
     }
-
-    // TODO gdy jest zniszczony to sie nie rysuje, ale lepiej jest zrobic tak zeby usunac go z listy
-    // przeciwnikow? odc 31 12min
-    // raczej mozna spokojnie usunac, bo mam juz metode removeEnemy w klasie B2WorldCreator
-//    public void draw (Batch batch){
-//        if(!destroyed)
-//            super.draw(batch);
-//    }
 
     public void kick (int speed){
         velocity.x = speed;

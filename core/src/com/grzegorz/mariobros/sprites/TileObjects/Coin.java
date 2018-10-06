@@ -15,7 +15,6 @@ import com.grzegorz.mariobros.sprites.items.Mushroom;
 
 public class Coin extends InteractiveTileObject {
     private static TiledMapTileSet tileSet;
-    private final int BLANK_COIN = 28;
 
     public Coin(PlayScreen screen, MapObject object){
         super(screen, object);
@@ -27,13 +26,12 @@ public class Coin extends InteractiveTileObject {
 
     @Override
     public void onHeadHit(Mario mario) {
-        Gdx.app.log("Coin", "Collision");
+        final int BLANK_COIN = 28;
         Sound coinSound = Gdx.audio.newSound(Gdx.files.internal("sounds/coin.wav"));
         Sound bumpSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bump.wav"));
 
         if (getCell().getTile().getId() == BLANK_COIN)  // jesli byl juz zbity to nabij guza ._.
             bumpSound.play();
-            //MarioBros.manager.get("sounds/bump.wav", Sound.class).play();
         else {
             getCell().setTile(tileSet.getTile(BLANK_COIN));
             if(object.getProperties().containsKey("mushroom"))
@@ -45,7 +43,6 @@ public class Coin extends InteractiveTileObject {
             }
             Hud.addScore(200);
             coinSound.play();
-            //MarioBros.manager.get("sounds/coin.wav", Sound.class).play();
         }
     }
 }

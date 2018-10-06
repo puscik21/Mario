@@ -1,7 +1,5 @@
 package com.grzegorz.mariobros.tools;
 
-import com.grzegorz.mariobros.sprites.TileObjects.InteractiveTileObject;
-
 public class Timer implements Runnable {
     private final long time;
     private boolean itsTime;

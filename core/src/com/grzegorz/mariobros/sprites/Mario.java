@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
@@ -21,8 +21,8 @@ import com.grzegorz.mariobros.sprites.enemies.Turtle;
 
 
 public class Mario extends Sprite{
-    public static final float FIRST_MARIO_POSITION_X = 128 / MarioBros.PPM;
-    public static final float FIRST_MARIO_POSITION_Y = 16 / MarioBros.PPM;
+    private static final float FIRST_MARIO_POSITION_X = 128 / MarioBros.PPM;
+    private static final float FIRST_MARIO_POSITION_Y = 16 / MarioBros.PPM;
 
     public World world;
     public Body b2body;
@@ -30,7 +30,7 @@ public class Mario extends Sprite{
     // Animation variables
     public enum State { FALLING, JUMPING, STANDING, RUNNING, GROWING, DEAD, SLIDING, ENDING}
     public State currentState;
-    public State previousState;
+    private State previousState;
     private TextureRegion marioStand;
     private Animation<TextureRegion> marioRun;
     private TextureRegion marioJump;
@@ -53,7 +53,7 @@ public class Mario extends Sprite{
     private boolean marioIsSliding;
     private boolean marioIsEnding;
 
-    private int numbersOfUsage;         // TODO do metody slide, ale moze do usuniecia
+    private int numbersOfUsage;
 
     // TODO dorzucic ghost vertices zeby Mario nie podskakiwal na cegielkach
     public Mario(PlayScreen screen){
@@ -63,15 +63,16 @@ public class Mario extends Sprite{
         stateTimer = 0;
         runningRight = true;
 
-        // animacja biegu
-        // tworzymy tablice z odpowiednimi teksturami animacji
-        com.badlogic.gdx.utils.Array<TextureRegion> frames = new com.badlogic.gdx.utils.Array<TextureRegion>(4);
+        // tworzymy tablice biegu z odpowiednimi teksturami animacji
+        Array<TextureRegion> frames = new com.badlogic.gdx.utils.Array<TextureRegion>(4);
+
         // wypelniamy tablice obrazkami biegu
         for (int i=1; i<4; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("little_mario"), i * 16, 0, 16, 16));
         // przypisujemy animacje
         marioRun = new Animation<TextureRegion>(0.1f, frames);
         frames.clear();
+
         for (int i=1; i<4; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("big_mario"), i * 16, 0, 16, 32));
         bigMarioRun = new Animation<TextureRegion>(0.1f, frames);
@@ -226,7 +227,7 @@ public class Mario extends Sprite{
         marioIsBig = true;
         timeToDefineBigMario = true;
         setBounds(getX(), getY(), getWidth(), getHeight() * 2);
-        // TODO miejsce na dzwiek
+        // TODO miejsce na dzwiek grow'a Mario
     }
 
     public boolean isDead(){
@@ -235,10 +236,6 @@ public class Mario extends Sprite{
 
     public float getStateTimer(){
         return stateTimer;
-    }
-
-    public void setStateTimer(float stateTimer) {
-        this.stateTimer = stateTimer;
     }
 
     public void hit(Enemy enemy) {
@@ -281,7 +278,6 @@ public class Mario extends Sprite{
     }
 
     public void captureTheFlag(){
-        Gdx.app.log("Mario", "WINNER");
         marioIsSliding = true;
         b2body.setGravityScale(0);
         b2body.setLinearVelocity(new Vector2(0, -1f));

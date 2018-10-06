@@ -115,7 +115,6 @@ public class PlayScreen implements Screen {
             ItemDef idef = itemsToSpawn.poll();
             if(idef.type == Mushroom.class)
                 items.add(new Mushroom(this, idef.position.x, idef.position.y));
-            // TODO tutaj bedzie if z monetami
             if (idef.type == CoinAnimation.class)
                 items.add(new CoinAnimation(this, idef.position.x, idef.position.y));
         }
@@ -138,7 +137,7 @@ public class PlayScreen implements Screen {
 
     }
 
-    public void handleInput(float dt){
+    public void handleInput(){
         if (player.currentState != Mario.State.DEAD && player.currentState !=Mario.State.GROWING && player.currentState != Mario.State.SLIDING) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 player.b2body.applyLinearImpulse(new Vector2(0, MARIO_VELOCITY_Y), player.b2body.getWorldCenter(), true);
@@ -154,20 +153,15 @@ public class PlayScreen implements Screen {
 
     public void update(float dt){
         // sprawdza wciskane klawisze
-        handleInput(dt);
+        handleInput();
         // sprawdza czy sa jakies przedmioty do stworzenia
         handleSpawningItems();
 
         world.step(1/60f, 6, 2);
 
-        // TODO the end of the game... not sure about disposing things
         // when Mario came to the castle
-        if (player.getX() > 35.04) {
+        if (player.getX() > 35.04)
             theEnd = true;
-            // TODO dlaczego to wyrzuca blad?
-            // chyba trzeba to w jakims odpowiednim momencie wywolac
-            // world.destroyBody(player.b2body);
-        }
 
         if (!theEnd)
             player.update(dt);
@@ -183,8 +177,8 @@ public class PlayScreen implements Screen {
         // jezeli wypadnaie poza mape to usun z listy przeciwnikow
         for (Enemy enemy : creator.getEnemnies()){
             if (enemy.getY() < -1) {
-                creator.removeEnemy(enemy);
                 world.destroyBody(enemy.b2body);
+                creator.removeEnemy(enemy);
             }
         }
 
@@ -192,11 +186,18 @@ public class PlayScreen implements Screen {
             // metoda update - jesli jest to goomba to uzyta bedzie ta z goomba,
             // jest turtle to z turtle
             enemy.update(dt);
+            // set active the enemy when Mario is near
             if (enemy.getX() < player.getX() + 3.5f)
                 enemy.b2body.setActive(true);
+
+            // here is where enemies are removed
+            if (enemy.isRemoveBody()) {
+                world.destroyBody(enemy.b2body);
+                creator.removeEnemy(enemy);
+            }
         }
 
-        // jezeli wypadna poza mape to usun z listy przedmiotow
+        // remove item if it fall out of map
         for (Item item : items){
             if (item.getY() < -1 || (!item.isDestroyed() && item.isToDestroy())) {
                 items.removeValue(item, true);
@@ -230,6 +231,13 @@ public class PlayScreen implements Screen {
             else if(brick.isDoKillingBrick())
                 brick.setKillingBrick(brick.new KillingBrick(this, brick.getBody().getPosition().x, brick.getBody().getPosition().y));
 
+            // update killingBrick or bumpedBrick
+            if (brick.getKillingBrick() != null)
+                brick.getKillingBrick().update(dt);
+            if (brick.getBumpedBrick() != null)
+                brick.getBumpedBrick().update(dt);
+
+            // animating destroyed brick
             else if (brick.isTurnToPieces() && brick.getPieces().size() < 4) {
                 brick.getPieces().add(new PieceOfBrick(this, brick.getBody().getPosition().x  - 4 / MarioBros.PPM,
                         brick.getBody().getPosition().y + 4 / MarioBros.PPM, -1f, 1.5f));
@@ -287,18 +295,14 @@ public class PlayScreen implements Screen {
         // animations for bricks
         for (Brick brick : creator.getBricks()) {
             // hitted by the little Mario
-            if (brick.getBumpedBrick() != null) {
-                brick.getBumpedBrick().update(dt);
+            if (brick.getBumpedBrick() != null)
                 brick.getBumpedBrick().draw(game.batch);
-            }
-            if (brick.getKillingBrick() != null) {
-                brick.getKillingBrick().update(dt);
-            }
-            // hitted by the big Mario
+
+
+                // hitted by the big Mario
             else if (brick.isTurnToPieces())
-                for (int i=0; i < brick.getPieces().size(); i++) {
+                for (int i = 0; i < brick.getPieces().size(); i++) {
                     System.out.println(brick.getPieces().size());
-                    //brick.getPieces().get(i).update(dt);
                     brick.getPieces().get(i).draw(game.batch);
                 }
         }
@@ -316,11 +320,6 @@ public class PlayScreen implements Screen {
         }
         // GAME WON
         else if (gameWon()){
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e){
-//                Thread.currentThread().interrupt();
-//            }
             game.setScreen(new GameWonScreen(game));
             dispose();
         }
@@ -345,13 +344,6 @@ public class PlayScreen implements Screen {
         if (timer != null && timer.isItTime())
             itsTime = true;
         return theEnd && itsTime;
-    }
-
-    public void removeItem(){
-        // wyrzucalo blad, powinno sie niszczyc w updacie
-        //items.removeValue(item, true);
-        //world.destroyBody(items.pop().getBody());
-        items.peek().destroy();
     }
 
     @Override

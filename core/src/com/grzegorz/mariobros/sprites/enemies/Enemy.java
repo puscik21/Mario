@@ -7,7 +7,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
 
-// TODO Change hitOnHead() so Mario falling fast can't be killed by goomba
 public abstract class Enemy extends Sprite {
 
     protected World world;
@@ -15,6 +14,10 @@ public abstract class Enemy extends Sprite {
     public Body b2body;
     public Vector2 velocity;
     protected boolean dangerous;
+    protected boolean setToDestroy;
+    protected boolean destroyed;
+    protected boolean removeBody;
+    protected boolean removeTexture;
 
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -24,6 +27,10 @@ public abstract class Enemy extends Sprite {
         velocity = new Vector2(-0.7f, -1.2f);
         b2body.setActive(false);
         dangerous = true;
+    }
+
+    public boolean isRemoveBody() {
+        return removeBody;
     }
 
     protected abstract void defineEnemy();

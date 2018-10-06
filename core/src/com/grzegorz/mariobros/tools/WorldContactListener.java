@@ -1,13 +1,11 @@
 package com.grzegorz.mariobros.tools;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.grzegorz.mariobros.MarioBros;
-import com.grzegorz.mariobros.sprites.TileObjects.Flag;
 import com.grzegorz.mariobros.sprites.enemies.Enemy;
 import com.grzegorz.mariobros.sprites.TileObjects.InteractiveTileObject;
 import com.grzegorz.mariobros.sprites.Mario;
@@ -42,8 +40,6 @@ public class WorldContactListener implements ContactListener{
                     ((Enemy) fixB.getUserData()).hitOnHead((Mario) fixA.getUserData());
                 break;
             // zwalczanie mobkow cegla
-            // TODO zrobic aby dzialalo tylko przy duzym Mario
-            // moze dodac odpowiednia flage do BumpedBrick?
             case MarioBros.ENEMY_BIT | MarioBros.BUMPED_BRICK_BIT:
                 if (fixA.getFilterData().categoryBits == MarioBros.ENEMY_BIT)
                     ((Enemy) fixA.getUserData()).brickKill();

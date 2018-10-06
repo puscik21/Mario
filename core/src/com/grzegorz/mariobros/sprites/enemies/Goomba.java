@@ -14,20 +14,15 @@ import com.badlogic.gdx.utils.Array;
 import com.grzegorz.mariobros.MarioBros;
 import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
-import com.grzegorz.mariobros.sprites.enemies.Enemy;
-
-import static com.grzegorz.mariobros.sprites.enemies.Goomba.State.KILLED_BY_BRICK;
 
 public class Goomba extends Enemy {
 
     private float stateTime;
-    private Animation walkAnimation;
+    private Animation<TextureRegion> walkAnimation;
     private Array<TextureRegion> frames;
     public enum State {KILLED_BY_BRICK, LIVING}
     private State currentState;
     private float deadRotationDegrees;
-    private boolean setToDestroy;
-    private boolean destroyed;
     private boolean jumped;
 
     public Goomba(PlayScreen screen, float x, float y) {
@@ -37,19 +32,18 @@ public class Goomba extends Enemy {
         for (int i=0; i<2; i++)
             frames.add(new TextureRegion(screen.getAtlas().findRegion("goomba"), i * 16, 0, 16, 16));
 
-        walkAnimation = new Animation(0.4f, frames );
+        walkAnimation = new Animation<TextureRegion>(0.4f, frames );
         stateTime = 0;
         // tym ustalam rozmiar textury
         setBounds(getX(), getY(), 16 / MarioBros.PPM, 16 / MarioBros.PPM);
         setToDestroy = false;
-        destroyed = false;
         currentState = State.LIVING;
         deadRotationDegrees = 0;
     }
 
     public void update(float dt) {
         stateTime += dt;
-        if (setToDestroy && !destroyed) {
+        if (setToDestroy) {
             if (currentState == State.KILLED_BY_BRICK){
                 setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
                 deadRotationDegrees += 0.1;
@@ -62,23 +56,27 @@ public class Goomba extends Enemy {
                         fixture.setFilterData(filter);
                     b2body.applyLinearImpulse(new Vector2(0.5f, 3f), b2body.getWorldCenter(), true);
                 }
-                if (stateTime > 3) {
-                    world.destroyBody(b2body);
-                    destroyed = true;
-                    stateTime = 0;
+                else if (stateTime > 3) {
+                    removeBody = true;
                 }
             }
             else {
-                world.destroyBody(b2body);
-                destroyed = true;
+                // when goomba is killed by Mario or turtle he get's nothing bit, so he cannot colide with anything
+                Filter filter = new Filter();
+                filter.maskBits = MarioBros.NOTHING_BIT;
+                for (Fixture fixture : b2body.getFixtureList())
+                    fixture.setFilterData(filter);
+
                 // 32 - poniewaz jest to 3 tekstura w pliku (0, 16, 32, 48,...)
                 setRegion(new TextureRegion(screen.getAtlas().findRegion("goomba"), 32, 0, 16, 16));
-                stateTime = 0;
             }
-        } else if (!destroyed) {
+            if (stateTime > 1)
+                removeBody = true;
+
+        } else {
             b2body.setLinearVelocity(velocity);
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            setRegion((TextureRegion) walkAnimation.getKeyFrame(stateTime, true));
+            setRegion(walkAnimation.getKeyFrame(stateTime, true));
         }
     }
 
@@ -111,7 +109,7 @@ public class Goomba extends Enemy {
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData(this);
 
-        // creat the head here
+        // create the head here
         PolygonShape head = new PolygonShape();
         Vector2[] vertice = new Vector2[4];
         vertice[0] = new Vector2(-5, 8).scl(1 / MarioBros.PPM);
@@ -131,15 +129,14 @@ public class Goomba extends Enemy {
 
     @Override
     public void draw(Batch batch){
-        if (!destroyed || stateTime < 1)
             super.draw(batch);
-        else if (stateTime > 1)
-            screen.getCreator().removeEnemy(this);
     }
 
     public void onEnemyHit(Enemy enemy){
-        if (enemy instanceof Turtle && ((Turtle) enemy).currentState == Turtle.State.MOVING_SHELL)
+        if (enemy instanceof Turtle && ((Turtle) enemy).currentState == Turtle.State.MOVING_SHELL) {
             setToDestroy = true;
+            stateTime = 0;
+        }
         else
             reverseVelocity(true, false);
     }
@@ -149,11 +146,11 @@ public class Goomba extends Enemy {
     /* Dlaczego nie moge tak po prostu usunac Goomby tutaj?
         Poniewaz w PlayScreenie jest funkcja world.step(), ktora odswieza cala gre,
         nie moge tak po prostu usunac obiektu, bo co jesli np. koliduje w tym momencie
-        z dwoma obiektami?
-        Dlatego trzeba to zrobic w metodzie update() */
+        z dwoma obiektami?  */
     public void hitOnHead(Mario mario){
         setToDestroy = true;
         dangerous = false;
+        stateTime = 0;
         // TODO stomp sound
     }
 }

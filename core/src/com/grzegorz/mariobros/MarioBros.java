@@ -35,21 +35,17 @@ public class MarioBros extends Game {
 
 	public SpriteBatch batch;
 
-	/* WARNING uzywanie AssetManagera statycznie moze powodowac problemy, zwlaszcza na
-	 androidzie */
-	//public static AssetManager manager;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		setScreen(new PlayScreen(this));
 
-//		manager.load("music/ds3_soundtrack.mp3", Music.class);
-//		manager.load("sounds/coin.wav", Sound.class);
-		//manager.load("sounds/breakblock.wav", Sound.class);
-		//manager.load("breakblock.wav", Sound.class);
-	//	manager.load("sounds/bump.wav", Sound.class);
-	//	manager.finishLoading();
+		// TODO ogarnac dzwieki
+//        flaga
+//        game over
+//        smierc Mario
+//        skok na mobka
 	}
 
 	@Override
@@ -60,7 +56,6 @@ public class MarioBros extends Game {
     @Override
     public void dispose() {
         super.dispose();
-        //manager.dispose();
         batch.dispose();
     }
 }

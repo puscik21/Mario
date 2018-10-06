@@ -12,6 +12,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.grzegorz.mariobros.MarioBros;
 
+import static java.lang.String.format;
+
 public class Hud implements Disposable{
     public Stage stage;
     private Viewport viewPort;
@@ -23,15 +25,16 @@ public class Hud implements Disposable{
 
     private Label countdownLabel;
     private static Label scoreLabel;
-    private Label timeLabel;
-    private Label levelLabel;
-    private Label worldLabel;
-    private Label marioLabel;
+
 
     public Hud(SpriteBatch sb){
         worldTimer = 180;
         timeCount = 0;
         score = 0;
+        Label timeLabel;
+        Label levelLabel;
+        Label worldLabel;
+        Label marioLabel;
 
         viewPort = new FitViewport(MarioBros.V_WIDTH, MarioBros.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewPort, sb);
@@ -41,8 +44,8 @@ public class Hud implements Disposable{
         table.setFillParent(true);      // ustawiamy rozmiar taki jak rozmiar aplikacji
 
         // %03d oznacza chyba ze 3 liczby wezmiemy do licznika
-        countdownLabel = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        scoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        countdownLabel = new Label(format("%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        scoreLabel = new Label(format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         timeLabel = new Label("TIME", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         worldLabel = new Label("WORLD", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
@@ -67,19 +70,19 @@ public class Hud implements Disposable{
         timeCount += dt;
         if (timeCount >= 1 && worldTimer > 0){
             worldTimer--;
-            countdownLabel.setText(String.format("%03d", worldTimer));
+            countdownLabel.setText(format("%03d", worldTimer));
             timeCount = 0;
         }
     }
 
     public static void addScore(int value){
         score += value;
-        scoreLabel.setText(String.format("%06d", score));
+        scoreLabel.setText(format("%06d", score));
     }
 
     public void timeDecrease(){
             worldTimer--;
-            countdownLabel.setText(String.format("%03d", worldTimer));
+            countdownLabel.setText(format("%03d", worldTimer));
     }
 
     @Override

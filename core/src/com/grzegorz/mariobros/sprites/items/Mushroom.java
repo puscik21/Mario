@@ -9,7 +9,7 @@ import com.grzegorz.mariobros.screens.PlayScreen;
 import com.grzegorz.mariobros.sprites.Mario;
 
 public class Mushroom extends Item {
-    PlayScreen screen;
+    private PlayScreen screen;
 
     public Mushroom(PlayScreen screen, float x, float y) {
         super(screen, x, y);
